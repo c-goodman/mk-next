@@ -6,6 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 
 export default function Search({ placeholder }: { placeholder: string }) {
     const searchParams = useSearchParams();
+    // Get the route's pathname from the parent component context
     const pathname = usePathname();
     const { replace } = useRouter();
 
@@ -16,6 +17,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
         } else {
             params.delete('query');
         }
+        // Update the route's URL with parsed search params
         replace(`${pathname}?${params.toString()}`);
     }, 300);
 
