@@ -123,7 +123,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 >
                     Cancel
                 </Link>
-                <Button type="submit">Create Invoice</Button>
+                <Button type="submit" className="bg-green-500">Create Invoice</Button>
             </div>
         </form>
     );
