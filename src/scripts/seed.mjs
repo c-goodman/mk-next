@@ -1,44 +1,29 @@
-import { db, VercelPoolClient } from "@vercel/postgres";
+import { db } from "@vercel/postgres";
 import fs from "fs";
 import path from "path";
 import Papa from "papaparse";
 
-import "../envConfig.mjs";
+import "../../envConfig.mjs";
 
-interface FormData {
-  TIMESTAMP: Date;
-  NEW_SESSION: string;
-  MAP: string;
-  PLAYERS: number;
-  PLAYERS_1ST: string;
-  PLAYERS_2ND: string;
-  PLAYERS_3RD: string;
-  PLAYERS_4TH: string;
-  CHARACTERS_1ST: string;
-  CHARACTERS_2ND: string;
-  CHARACTERS_3RD: string;
-  CHARACTERS_4TH: string;
-}
-
-const parseCSV = async (
-  filePath: string
-): Promise<Papa.ParseResult<FormData>> => {
+const parseCSV = async (filePath) => {
   const csvFile = fs.readFileSync(path.resolve(filePath), "utf8");
   return new Promise((resolve) => {
     Papa.parse(csvFile, {
       header: true,
-      complete: (results: any) => {
+      complete: (results) => {
         resolve(results.data);
       },
     });
   });
 };
 
-async function seed(client: VercelPoolClient) {
+// CREATE TABLE IF NOT EXISTS
+async function seed(client) {
   const createTable = await client.sql`
+    DROP TABLE IF EXISTS mk_form_data;
     CREATE TABLE IF NOT EXISTS mk_form_data (
       id SERIAL PRIMARY KEY
-      ,TIMESTAMP TIMESTAMP NOT NULL
+      ,TIMESTAMP TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
       ,NEW_SESSION VARCHAR(255) NOT NULL
       ,MAP VARCHAR(255) NOT NULL
       ,PLAYERS SMALLINT NOT NULL
@@ -54,11 +39,11 @@ async function seed(client: VercelPoolClient) {
   `;
 
   const seedData = await parseCSV(
-    "C:\\Users\\Cooper\\sandbox\\mkstream\\form_data_migration\\form_data_no_id_col.csv"
+    "./form_data_migration/form_data_no_id_col.csv"
   );
 
   // Insert into database
-  const promises = seedData.map((record: any) => {
+  const promises = seedData.map((record) => {
     return client.sql`
   INSERT INTO mk_form_data (
     TIMESTAMP, 
@@ -73,8 +58,7 @@ async function seed(client: VercelPoolClient) {
     CHARACTERS_2ND, 
     CHARACTERS_3RD, 
     CHARACTERS_4TH
-  )
-  VALUES (
+  ) VALUES (
     ${record["TIMESTAMP"]},
     ${record["NEW_SESSION"]},
     ${record["MAP"]},
@@ -86,8 +70,8 @@ async function seed(client: VercelPoolClient) {
     ${record["CHARACTERS_1ST"]},
     ${record["CHARACTERS_2ND"]},
     ${record["CHARACTERS_3RD"]},
-    ${record["CHARACTERS_4TH"]},
-  )
+    ${record["CHARACTERS_4TH"]}
+  );
   `;
   });
 
@@ -108,3 +92,5 @@ async function main() {
     await client.end();
   }
 }
+
+main().catch(console.error);

@@ -40,7 +40,7 @@
     ".next/types/**/*.ts",
     "app/lib/placeholder-data.ts",
     "scripts/seed.js"
-  ],
+, "src/scripts/seed.ts" , "src/scripts/seed.mjs" ],
   "exclude": [
     "node_modules"
   ]
