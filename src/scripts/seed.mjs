@@ -35,18 +35,17 @@ async function seed(client) {
       ,CHARACTERS_2ND VARCHAR(255) NOT NULL
       ,CHARACTERS_3RD VARCHAR(255)
       ,CHARACTERS_4TH VARCHAR(255)
+      ,SEASON SMALLINT NOT NULL
     );
   `;
 
-  const seedData = await parseCSV(
-    "./form_data_migration/form_data_no_id_col.csv"
-  );
+  const seedData = await parseCSV("./form_data_migration/form_data_valid.csv");
 
   // Insert into database
   const promises = seedData.map((record) => {
     return client.sql`
   INSERT INTO mk_form_data (
-    TIMESTAMP, 
+    TIMESTAMP,
     NEW_SESSION, 
     MAP, 
     PLAYERS, 
@@ -57,7 +56,8 @@ async function seed(client) {
     CHARACTERS_1ST, 
     CHARACTERS_2ND, 
     CHARACTERS_3RD, 
-    CHARACTERS_4TH
+    CHARACTERS_4TH,
+    SEASON
   ) VALUES (
     ${record["TIMESTAMP"]},
     ${record["NEW_SESSION"]},
@@ -70,7 +70,8 @@ async function seed(client) {
     ${record["CHARACTERS_1ST"]},
     ${record["CHARACTERS_2ND"]},
     ${record["CHARACTERS_3RD"]},
-    ${record["CHARACTERS_4TH"]}
+    ${record["CHARACTERS_4TH"]},
+    ${record["SEASON"]}
   );
   `;
   });
