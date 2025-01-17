@@ -2,6 +2,7 @@
 
 .env
 .local.env
+env.d.ts
 /form_data_migration
 
 # dependencies
