@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { Button } from "@/components/ui/button";
 import { useActionState } from "react";
-import { authenticate } from "@/app/lib/actions";
+import { authenticate } from "@/app/lib/auth-actions";
 import Link from "next/link";
 
 export default function SignupForm() {
