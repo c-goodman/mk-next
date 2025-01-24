@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import MKLogo from "@/app/ui/mk-logo";
+import MKLogo from "@/components/ui/mk-logo";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 // import styles from '@/app/ui/home.module.css'
-import { lusitana } from "@/app/ui/fonts";
+import { lusitana } from "@/components/ui/fonts";
 
 export default function Home() {
   return (

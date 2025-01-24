@@ -1,5 +1,5 @@
-import MKLogo from "@/app/ui/mk-logo";
-import LoginForm from "@/app/ui/login-form";
+import MKLogo from "@/components/ui/mk-logo";
+import LoginForm from "@/components/forms/login-form";
 import Link from "next/link";
 
 export default function LoginPage() {

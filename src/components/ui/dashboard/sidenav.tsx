@@ -1,5 +1,5 @@
-import NavLinks from "@/app/ui/dashboard/nav-links";
-import MKLogo from "@/app/ui/mk-logo";
+import NavLinks from "@/components/ui/dashboard/nav-links";
+import MKLogo from "@/components/ui/mk-logo";
 import { PowerIcon } from "@heroicons/react/24/outline";
 import { signOut } from "@/auth";
 
