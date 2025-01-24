@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useActionState } from "react";
 import { authenticate } from "@/app/lib/actions";
+import Link from "next/link";
 
 export default function LoginForm() {
   const [errorMessage, formAction, isPending] = useActionState(
@@ -64,6 +65,7 @@ export default function LoginForm() {
             </div>
           </div>
         </div>
+
         <Button
           className="mt-4 w-full"
           aria-disabled={isPending}
@@ -74,6 +76,12 @@ export default function LoginForm() {
           Log in with Credentials{" "}
           <ClipboardDocumentListIcon className="ml-auto h-7 w-7 text-gray-50" />
         </Button>
+        <div className="mt-4 text-center text-sm">
+          Don't have an account?
+          <Link className="underline ml-2" href="signup">
+            Sign Up
+          </Link>
+        </div>
         <div
           className="flex h-8 items-end space-x-1"
           aria-live="polite"
