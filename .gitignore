@@ -4,6 +4,7 @@
 .local.env
 env.d.ts
 /form_data_migration
+/deprecated
 
 # dependencies
 /node_modules
