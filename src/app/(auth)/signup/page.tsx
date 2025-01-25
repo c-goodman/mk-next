@@ -1,6 +1,6 @@
 import MKLogo from "@/components/ui/mk-logo";
-import SignupForm from "@/components/forms/signup-form";
 import Link from "next/link";
+import { SignupFormProvider } from "@/components/forms/signup-form-provider";
 
 export default function SignupPage() {
   return (
@@ -9,7 +9,7 @@ export default function SignupPage() {
         <Link href="/">
           <MKLogo />
         </Link>
-        <SignupForm />
+        <SignupFormProvider />
       </div>
     </main>
   );
