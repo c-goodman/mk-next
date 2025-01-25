@@ -1,25 +1,22 @@
 "use server";
 
-import { sql } from "@vercel/postgres";
-import { cookies } from "next/headers";
-import { signIn } from "@/auth";
 import AuthError from "next-auth";
-
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
+import { signIn } from "@/auth";
 import { SignupSchema } from "@/components/forms/schemas/signup-form-schema";
+import { sql } from "@vercel/postgres";
 
-const config = {
-  maxAge: 60 * 60 * 24 * 7, // 1 week
-  path: "/",
-  domain: process.env.HOST ?? "localhost",
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-};
-
-
-// TODO: User name already exists
-// TODO: Email already exists
+// For use with JWT?
+// https://github.com/PaulBratslavsky/epic-next-15-strapi-5/blob/main/frontend/src/data/actions/auth-actions.ts
+// import { cookies } from "next/headers";
+// const config = {
+//   maxAge: 60 * 60 * 24 * 7, // 1 week
+//   path: "/",
+//   domain: process.env.HOST ?? "localhost",
+//   httpOnly: true,
+//   secure: process.env.NODE_ENV === "production",
+// };
 
 export type SignupUserState = {
   errors?: {
