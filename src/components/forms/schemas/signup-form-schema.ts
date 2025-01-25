@@ -15,7 +15,7 @@ export const SignupSchema = z
   .superRefine((data, ctx) => {
     let countOfNumbers = 0;
     for (let i = 0; i < data.password.length; i++) {
-      let ch = data.password.charAt(i);
+      const ch = data.password.charAt(i);
       if (!isNaN(+ch)) countOfNumbers++;
     }
     if (countOfNumbers < 1) {
@@ -30,7 +30,7 @@ export const SignupSchema = z
     const containsUppercase = (ch: string) => /[A-Z]/.test(ch);
     let countOfUpperCase = 0;
     for (let i = 0; i < data.password.length; i++) {
-      let ch = data.password.charAt(i);
+      const ch = data.password.charAt(i);
       if (containsUppercase(ch)) countOfUpperCase++;
     }
     if (countOfUpperCase < 1) {
@@ -45,7 +45,7 @@ export const SignupSchema = z
     const containsLowercase = (ch: string) => /[a-z]/.test(ch);
     let countOfLowerCase = 0;
     for (let i = 0; i < data.password.length; i++) {
-      let ch = data.password.charAt(i);
+      const ch = data.password.charAt(i);
       if (containsLowercase(ch)) countOfLowerCase++;
     }
     if (countOfLowerCase < 1) {
@@ -61,7 +61,7 @@ export const SignupSchema = z
       /[`!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?~ ]/.test(ch);
     let countOfSpecialChar = 0;
     for (let i = 0; i < data.password.length; i++) {
-      let ch = data.password.charAt(i);
+      const ch = data.password.charAt(i);
       if (containsSpecialChar(ch)) countOfSpecialChar++;
     }
     if (countOfSpecialChar < 1) {
