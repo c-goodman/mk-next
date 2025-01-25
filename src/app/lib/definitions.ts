@@ -86,9 +86,3 @@ export type InvoiceForm = {
   amount: number;
   status: "pending" | "paid";
 };
-
-export type TSignupForm = {
-  username: string;
-  email: string;
-  password: string;
-};
