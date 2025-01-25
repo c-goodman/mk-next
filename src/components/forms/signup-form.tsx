@@ -16,15 +16,10 @@ import { TSignupSchema } from "./schemas/signup-form-schema";
 import { useFormContext } from "react-hook-form";
 import { ZodErrorMessage } from "../custom/zod-error-message";
 
-// https://github.com/PaulBratslavsky/epic-next-15-strapi-5/blob/main/frontend/src/components/forms/signup-form.tsx
 export default function SignupForm() {
   const {
     register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setValue,
-    reset,
-    watch,
+    formState: { errors, isSubmitting, isValid },
   } = useFormContext<TSignupSchema>();
 
   const initialState: SignupUserState = { message: null, errors: {} };
@@ -120,14 +115,13 @@ export default function SignupForm() {
         </div>
         <Button
           className="mt-4 w-full"
-          // aria-disabled={isPending}
-          // https://nehalist.io/react-hook-form-with-nextjs-server-actions/
-          // aria-disabled={Object.keys(formState?.errors? : {}).length > 0}
+          aria-disabled={!isValid || isSubmitting}
+          disabled={!isValid || isSubmitting}
           type="submit"
           name="action"
           value="credentials"
         >
-          Log in with Credentials{" "}
+          Sign Up{" "}
           <ClipboardDocumentListIcon className="ml-auto h-7 w-7 text-gray-50" />
         </Button>
         <div className="mt-4 text-center text-sm">
