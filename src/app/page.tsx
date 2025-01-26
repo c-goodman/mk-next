@@ -16,6 +16,7 @@ export default function Home() {
           >
             <strong>Welcome to Mario Kart!</strong>
           </p>
+          <p>Add Luigi Mode</p>
           <Link
             href="/dashboard"
             className="flex items-center gap-5 self-start rounded-lg bg-red-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-red-400 md:text-base"
