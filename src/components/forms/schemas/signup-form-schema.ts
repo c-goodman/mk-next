@@ -1,3 +1,9 @@
+import { fetchUserByName, fetchUserNames } from "@/app/lib/data";
+import {
+  useFetchUserByEmail,
+  useFetchUserByName,
+  useFetchUserNames,
+} from "@/app/lib/hooks/fetch-hooks";
 import { z } from "zod";
 
 export const SignupSchema = z
@@ -69,6 +75,34 @@ export const SignupSchema = z
         code: z.ZodIssueCode.custom,
         path: ["password"],
         message: "Password must contain at least one special character!",
+      });
+    }
+  })
+  .superRefine(async (data, ctx) => {
+    // Query the Users table by the current username value
+    const userData = await useFetchUserByName(data.username);
+
+    // If any records are returned raise an error
+    // users.name has a unique constraint in the database
+    if (userData.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["username"],
+        message: "Username already exists",
+      });
+    }
+  })
+  .superRefine(async (data, ctx) => {
+    // Query the Users table by the current email value
+    const userData = await useFetchUserByEmail(data.email);
+
+    // If any records are returned raise an error
+    // users.name has a unique constraint in the database
+    if (userData.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["email"],
+        message: "Email already exists",
       });
     }
   });

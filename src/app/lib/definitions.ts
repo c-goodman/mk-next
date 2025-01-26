@@ -86,3 +86,14 @@ export type InvoiceForm = {
   amount: number;
   status: "pending" | "paid";
 };
+
+export type TUsersTable = {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+};
+
+export type TUserNames = {
+  name: string;
+};
