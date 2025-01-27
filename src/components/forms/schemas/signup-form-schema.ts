@@ -1,8 +1,6 @@
-import { fetchUserByName, fetchUserNames } from "@/app/lib/data";
 import {
   useFetchUserByEmail,
   useFetchUserByName,
-  useFetchUserNames,
 } from "@/app/lib/hooks/fetch-hooks";
 import { z } from "zod";
 
