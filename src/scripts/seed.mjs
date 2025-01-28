@@ -25,6 +25,7 @@ async function seed(client) {
       id SERIAL PRIMARY KEY
       ,TIMESTAMP TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
       ,NEW_SESSION VARCHAR(255) NOT NULL
+      ,SUID SERIAL NOT NULL
       ,MAP VARCHAR(255) NOT NULL
       ,PLAYERS SMALLINT NOT NULL
       ,PLAYERS_1ST VARCHAR(255) NOT NULL
@@ -46,7 +47,8 @@ async function seed(client) {
     return client.sql`
   INSERT INTO mk_form_data (
     TIMESTAMP,
-    NEW_SESSION, 
+    NEW_SESSION,
+    SUID, 
     MAP, 
     PLAYERS, 
     PLAYERS_1ST, 
@@ -61,6 +63,7 @@ async function seed(client) {
   ) VALUES (
     ${record["TIMESTAMP"]},
     ${record["NEW_SESSION"]},
+    ${record["SUID"]},
     ${record["MAP"]},
     ${record["PLAYERS"]},
     ${record["PLAYERS_1ST"]},
