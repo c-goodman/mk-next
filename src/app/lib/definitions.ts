@@ -1,6 +1,3 @@
-// This file contains type definitions for your data.
-// It describes the shape of the data, and what data type each property should accept.
-// For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 export type User = {
   id: string;
@@ -96,4 +93,25 @@ export type TUsersTable = {
 
 export type TUserNames = {
   name: string;
+};
+
+// --------------------------------------------------------
+// Games
+// --------------------------------------------------------
+export type TGamesTable = {
+  id: number;
+  timestamp: Date;
+  suid: number;
+  new_session: string;
+  map: string;
+  players: number;
+  players_1st: string;
+  players_2nd: string;
+  players_3rd: string;
+  players_4th: string;
+  characters_1st: string;
+  characters_2nd: string;
+  characters_3rd: string;
+  characters_4th: string;
+  season: number;
 };
