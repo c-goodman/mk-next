@@ -6,6 +6,7 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
+  TGamesTable,
   TUserNames,
   TUsersTable,
 } from "./definitions";
@@ -265,5 +266,72 @@ export async function fetchUserNames(): Promise<string[]> {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch user.");
+  }
+}
+
+// --------------------------------------------------------
+// Games
+// --------------------------------------------------------
+export async function fetchFilteredGames(query: string, currentPage: number) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const games = await sql<TGamesTable>`
+      SELECT
+        mk_form_data.id
+        ,mk_form_data.timestamp
+        ,mk_form_data.new_session
+        ,mk_form_data.map
+        ,mk_form_data.players
+        ,mk_form_data.players_1st
+        ,mk_form_data.players_2nd
+        ,mk_form_data.players_3rd
+        ,mk_form_data.players_4th
+        ,mk_form_data.characters_1st
+        ,mk_form_data.characters_2nd
+        ,mk_form_data.characters_3rd
+        ,mk_form_data.characters_4th
+        ,mk_form_data.season
+      FROM mk_form_data
+        WHERE
+        mk_form_data.players_1st ILIKE ${`%${query}%`} OR
+        mk_form_data.players_2nd ILIKE ${`%${query}%`} OR
+        mk_form_data.players_3rd ILIKE ${`%${query}%`} OR
+        mk_form_data.players_4th ILIKE ${`%${query}%`} OR
+        mk_form_data.map ILIKE ${`%${query}%`} OR
+        mk_form_data.season::text ILIKE ${`%${query}%`} OR
+        mk_form_data.timestamp::text ILIKE ${`%${query}%`}
+      ORDER BY mk_form_data.timestamp DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return games.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch games.");
+  }
+}
+
+export async function fetchGamesPages(query: string) {
+  try {
+    const count = await sql`
+    SELECT COUNT(*)
+      FROM mk_form_data
+        WHERE
+        mk_form_data.players_1st ILIKE ${`%${query}%`} OR
+        mk_form_data.players_2nd ILIKE ${`%${query}%`} OR
+        mk_form_data.players_3rd ILIKE ${`%${query}%`} OR
+        mk_form_data.players_4th ILIKE ${`%${query}%`} OR
+        mk_form_data.map ILIKE ${`%${query}%`} OR
+        mk_form_data.season::text ILIKE ${`%${query}%`} OR
+        mk_form_data.timestamp::text ILIKE ${`%${query}%`}
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    // const totalPages = Math.ceil(Number(count.rows[0].count) / 10);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch games.");
   }
 }
