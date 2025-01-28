@@ -281,6 +281,7 @@ export async function fetchFilteredGames(query: string, currentPage: number) {
         mk_form_data.id
         ,mk_form_data.timestamp
         ,mk_form_data.new_session
+        ,mk_form_data.suid
         ,mk_form_data.map
         ,mk_form_data.players
         ,mk_form_data.players_1st

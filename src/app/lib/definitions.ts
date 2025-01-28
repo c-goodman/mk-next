@@ -101,8 +101,8 @@ export type TUserNames = {
 export type TGamesTable = {
   id: number;
   timestamp: Date;
-  suid: number;
   new_session: string;
+  suid: number;
   map: string;
   players: number;
   players_1st: string;
