@@ -21,6 +21,28 @@ export const formatDateToLocal = (
   return formatter.format(date);
 };
 
+export const formatUTCTimestampToLocalISOString = (
+  timestampStr: Date,
+  timeZone: string = "America/New_York",
+  locale: string = "sv-SE"
+) => {
+  // const timestamp = new Date(Date.UTC(timestampStr));
+  const timestamp = new Date(timestampStr);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    // timeZone: "UTC",
+    timeZone: timeZone,
+    timeZoneName: "short",
+  };
+  const formatter = new Intl.DateTimeFormat(locale, options);
+  return formatter.format(timestamp);
+};
+
 export const generateYAxis = (revenue: Revenue[]) => {
   // Calculate what labels we need to display on the y-axis
   // based on highest record and in 1000s
