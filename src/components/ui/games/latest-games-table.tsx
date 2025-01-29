@@ -111,16 +111,18 @@ export default async function LatestGamesTable({
                     {game.players}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {game.players_1st}
+                    {`${game.players_1st}  (${game.characters_1st})`}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {game.players_2nd}
+                    {`${game.players_2nd}  (${game.characters_2nd})`}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {game.players_3rd}
+                    {game.players_3rd &&
+                      `${game.players_3rd}  (${game.characters_3rd})`}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {game.players_4th}
+                    {game.players_4th &&
+                      `${game.players_4th}  (${game.characters_4th})`}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     {/* <div className="flex justify-end gap-3">
