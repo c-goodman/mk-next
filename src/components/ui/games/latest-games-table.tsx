@@ -1,4 +1,5 @@
 // import { UpdateInvoice, DeleteInvoice } from '@/components/ui/invoices/buttons';
+import Image from "next/image";
 import { formatUTCTimestampToLocalISOString } from "@/app/lib/utils";
 import { fetchFilteredGames } from "@/app/lib/data";
 
@@ -86,18 +87,26 @@ export default async function LatestGamesTable({
                   key={game.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex items-center gap-3">
-                      <p>
-                        {formatUTCTimestampToLocalISOString(game.timestamp)}
-                      </p>
-                    </div>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {formatUTCTimestampToLocalISOString(game.timestamp)}
                   </td>
+
                   <td className="whitespace-nowrap px-3 py-3">
                     {game.new_session}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">{game.suid}</td>
-                  <td className="whitespace-nowrap px-3 py-3">{game.map}</td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={game.image_url}
+                        className="rounded-full"
+                        width={52}
+                        height={52}
+                        alt={`${game.map} picture`}
+                      />
+                      <p>{game.map}</p>
+                    </div>
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {game.players}
                   </td>

@@ -11,6 +11,7 @@ import {
   TUsersTable,
 } from "./definitions";
 import { formatCurrency } from "./utils";
+import { ITEMS_PER_PAGE } from "@/types/constants";
 
 export async function fetchRevenue() {
   try {
@@ -77,7 +78,6 @@ export async function fetchCardData() {
   }
 }
 
-const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number
@@ -293,7 +293,9 @@ export async function fetchFilteredGames(query: string, currentPage: number) {
         ,mk_form_data.characters_3rd
         ,mk_form_data.characters_4th
         ,mk_form_data.season
+        ,mk_maps.image_url
       FROM mk_form_data
+      JOIN mk_maps ON mk_form_data.map = mk_maps.map
         WHERE
         mk_form_data.players_1st ILIKE ${`%${query}%`} OR
         mk_form_data.players_2nd ILIKE ${`%${query}%`} OR

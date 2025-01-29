@@ -114,4 +114,5 @@ export type TGamesTable = {
   characters_3rd: string;
   characters_4th: string;
   season: number;
+  image_url: string;
 };
