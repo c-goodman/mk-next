@@ -6,6 +6,7 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
+  TCharactersTable,
   TGamesTable,
   TUserNames,
   TUsersTable,
@@ -335,6 +336,29 @@ export async function fetchGamesPages(query: string) {
     return totalPages;
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to fetch games.");
+    throw new Error("Failed to fetch total number of games.");
+  }
+}
+
+// --------------------------------------------------------
+// Characters
+// --------------------------------------------------------
+export async function fetchCharacters() {
+  try {
+    const characters = await sql<TCharactersTable>`
+      SELECT
+        mk_characters.id
+        ,mk_characters.character
+        ,mk_characters.image_url_icon
+        ,mk_characters.image_url_portrait_won
+        ,mk_characters.image_url_portrait_lost
+        ,mk_characters.type
+      FROM mk_characters
+    `;
+
+    return characters.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch characters.");
   }
 }

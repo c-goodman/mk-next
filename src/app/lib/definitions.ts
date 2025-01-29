@@ -116,3 +116,15 @@ export type TGamesTable = {
   season: number;
   image_url: string;
 };
+
+// --------------------------------------------------------
+// Characters
+// --------------------------------------------------------
+export type TCharactersTable = {
+  id: number;
+  character: string;
+  image_url_icon: string;
+  image_url_portrait_lost: string;
+  image_url_portrait_won: string;
+  type: string;
+};
