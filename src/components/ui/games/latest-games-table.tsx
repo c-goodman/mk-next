@@ -1,7 +1,7 @@
 // import { UpdateInvoice, DeleteInvoice } from '@/components/ui/invoices/buttons';
 import Image from "next/image";
 import { formatUTCTimestampToLocalISOString } from "@/app/lib/utils";
-import { fetchFilteredGames } from "@/app/lib/data";
+import { fetchCharacters, fetchFilteredGames } from "@/app/lib/data";
 
 export default async function LatestGamesTable({
   query,
@@ -11,6 +11,9 @@ export default async function LatestGamesTable({
   currentPage: number;
 }) {
   const games = await fetchFilteredGames(query, currentPage);
+  const characters = await fetchCharacters();
+
+  // console.log(JSON.stringify(characters));
 
   return (
     <div className="mt-6 flow-root">
@@ -99,9 +102,9 @@ export default async function LatestGamesTable({
                     <div className="flex items-center gap-3">
                       <Image
                         src={game.image_url}
-                        className="rounded-full"
-                        width={52}
-                        height={52}
+                        className="rounded-sm"
+                        width={50}
+                        height={50}
                         alt={`${game.map} picture`}
                       />
                       <p>{game.map}</p>
@@ -111,18 +114,76 @@ export default async function LatestGamesTable({
                     {game.players}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {`${game.players_1st}  (${game.characters_1st})`}
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={
+                          characters
+                            .filter((c) => c.character === game.characters_1st)
+                            .map((e) => e.image_url_portrait_won)[0]
+                        }
+                        className="rounded-full"
+                        width={40}
+                        height={40}
+                        alt={`First place character picture`}
+                      />
+                      <p>{`${game.players_1st}  (${game.characters_1st})`}</p>
+                    </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {`${game.players_2nd}  (${game.characters_2nd})`}
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={
+                          characters
+                            .filter((c) => c.character === game.characters_2nd)
+                            .map((e) => e.image_url_portrait_lost)[0]
+                        }
+                        className="rounded-full"
+                        width={40}
+                        height={40}
+                        alt={`Second place character picture`}
+                      />
+                      <p>{`${game.players_2nd}  (${game.characters_2nd})`}</p>
+                    </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {game.players_3rd &&
-                      `${game.players_3rd}  (${game.characters_3rd})`}
+                    {game.players_3rd && (
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={
+                            characters
+                              .filter(
+                                (c) => c.character === game.characters_3rd
+                              )
+                              .map((e) => e.image_url_portrait_lost)[0]
+                          }
+                          className="rounded-full"
+                          width={40}
+                          height={40}
+                          alt={`Third place character picture`}
+                        />
+                        <p>{`${game.players_3rd}  (${game.characters_3rd})`}</p>
+                      </div>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {game.players_4th &&
-                      `${game.players_4th}  (${game.characters_4th})`}
+                    {game.players_4th && (
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={
+                            characters
+                              .filter(
+                                (c) => c.character === game.characters_4th
+                              )
+                              .map((e) => e.image_url_portrait_lost)[0]
+                          }
+                          className="rounded-full"
+                          width={40}
+                          height={40}
+                          alt={`Fourth place character picture`}
+                        />
+                        <p>{`${game.players_4th}  (${game.characters_4th})`}</p>
+                      </div>
+                    )}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     {/* <div className="flex justify-end gap-3">
