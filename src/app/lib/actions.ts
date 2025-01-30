@@ -1,9 +1,17 @@
 "use server";
 
+import {
+  CreateGameSchema,
+  TCreateGameState,
+} from "@/components/forms/schemas/game-schema";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+
+// --------------------------------------------------------
+// Invoices
+// --------------------------------------------------------
 
 const FormSchema = z.object({
   id: z.string({
@@ -120,4 +128,104 @@ export async function deleteInvoice(id: string) {
     console.log("Database Error", error);
     throw new Error("Database Error: Failed to Delete Invoice.");
   }
+}
+
+// --------------------------------------------------------
+// Games
+// --------------------------------------------------------
+export async function createGame(
+  prevState: TCreateGameState,
+  formData: FormData
+) {
+  // Apply zod validation to formData
+  const validatedFields = CreateGameSchema.safeParse({
+    timestamp: new Date(),
+    new_session: "NO",
+    suid: 0,
+    map: formData.get("map"),
+    players: formData.get("players"),
+    players_1st: formData.get("players_1st"),
+    players_2nd: formData.get("players_2nd"),
+    players_3rd: formData.get("players_3rd"),
+    players_4th: formData.get("players_4th"),
+    characters_1st: formData.get("characters_1st"),
+    characters_2nd: formData.get("characters_2nd"),
+    characters_3rd: formData.get("characters_3rd"),
+    characters_4th: formData.get("characters_4th"),
+    season: 0,
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Create Invoice.",
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const {
+    new_session,
+    suid,
+    map,
+    players,
+    players_1st,
+    players_2nd,
+    players_3rd,
+    players_4th,
+    characters_1st,
+    characters_2nd,
+    characters_3rd,
+    characters_4th,
+    season,
+  } = validatedFields.data;
+
+  try {
+    // Insert data into db
+    await sql`
+            INSERT INTO mk_form_data (
+              timestamp,
+              new_session,
+              suid,
+              map,
+              players,
+              players_1st,
+              players_2nd,
+              players_3rd,
+              players_4th,
+              characters_1st,
+              characters_2nd,
+              characters_3rd,
+              characters_4th,
+              season
+            )
+            VALUES (
+              ${new Date().toISOString()},
+              ${new_session},
+              ${suid},
+              ${map},
+              ${players},
+              ${players_1st},
+              ${players_2nd},
+              ${players_3rd},
+              ${players_4th},
+              ${characters_1st},
+              ${characters_2nd},
+              ${characters_3rd},
+              ${characters_4th},
+              ${season}
+            )
+            `;
+  } catch (error) {
+    console.log("Database Error", error);
+    return {
+      message: "Database Error: Failed to Create Game.",
+    };
+  }
+
+  // Invalidate the cache
+  revalidatePath("/dashboard/games");
+  // Only reachable if there are no errors
+  // Send user back to origin onSubmit
+  redirect("/dashboard/games");
 }
