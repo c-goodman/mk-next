@@ -11,6 +11,7 @@ export default async function LatestGamesTable({
   currentPage: number;
 }) {
   const games = await fetchFilteredGames(query, currentPage);
+  // TODO: Handle this in server with a JOIN???
   const characters = await fetchCharacters();
 
   // console.log(JSON.stringify(characters));
