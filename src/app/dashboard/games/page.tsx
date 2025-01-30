@@ -1,12 +1,12 @@
-import { fetchGamesPages } from "@/app/lib/data";
-import { lusitana } from "@/components/ui/fonts";
-import LatestGamesTable from "@/components/ui/games/latest-games-table";
-// import { CreateInvoice } from "@/components/ui/invoices/buttons";
-import Pagination from "@/components/ui/invoices/pagination";
+import LatestGamesTable from '@/components/ui/games/latest-games-table';
+import Pagination from '@/components/ui/invoices/pagination';
+import Search from '@/components/ui/search';
+import { CreateGame } from '@/components/ui/games/buttons';
+import { fetchGamesPages } from '@/app/lib/data';
+import { lusitana } from '@/components/ui/fonts';
+import { Suspense } from 'react';
 
-import Search from "@/components/ui/search";
 // import { InvoicesTableSkeleton } from "@/components/ui/skeletons";
-import { Suspense } from "react";
 
 export default async function Page(props: {
   // Define optional search params that can be passed to the route URL
@@ -28,7 +28,7 @@ export default async function Page(props: {
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Search games..." />
-        {/* <CreateInvoice /> */}
+        <CreateGame />
       </div>
       {/* <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}> */}
       <Suspense key={query + currentPage}>
