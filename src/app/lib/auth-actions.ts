@@ -56,7 +56,6 @@ export async function signupUserAction(
           INSERT INTO users (name, email, password)
           VALUES (${username}, ${email}, ${hashedPassword})
           `;
-      redirect("/login");
     } catch (error) {
       console.log("Database Error", error);
       return {
@@ -66,6 +65,10 @@ export async function signupUserAction(
       };
     }
   }
+
+  // Only reachable if there are no errors
+  // Send user back to origin onSubmit
+  redirect("/login");
 }
 
 export async function authenticate(
