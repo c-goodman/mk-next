@@ -158,3 +158,10 @@ export const mapNamesAlphabeticalSelectOptions =
     value: val,
     label: val,
   }));
+
+export const gameType = z.enum(["4", "3", "2"]);
+
+export const gameTypeSelectOptions = gameType.options.map((val) => ({
+  value: val,
+  label: val,
+}));
