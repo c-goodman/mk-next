@@ -8,7 +8,7 @@ import {
     CurrencyDollarIcon,
     UserCircleIcon,
 } from '@heroicons/react/24/outline';
-import { Button } from '@/components/ui/c-button';
+import { Button } from '@/components/ui/custom/c-button';
 import { createInvoice, State } from '@/app/lib/actions';
 import { useActionState } from 'react';
 

@@ -7,7 +7,7 @@ import {
   ExclamationCircleIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
-import { Button } from "@/components/ui/c-button";
+import { Button } from "@/components/ui/custom/c-button";
 import { useActionState } from "react";
 import { authenticate } from "@/app/lib/auth-actions";
 import Link from "next/link";

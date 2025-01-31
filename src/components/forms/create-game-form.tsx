@@ -7,7 +7,7 @@ import {
   CurrencyDollarIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/custom/c-button";
 import { useActionState } from "react";
 import { useFormContext } from "react-hook-form";
 import {
@@ -15,7 +15,11 @@ import {
   TCreateGameState,
 } from "@/components/forms/schemas/game-schema";
 import { createGame } from "@/app/lib/actions";
-import { tempPlayerNamesSelectOption } from "@/types/options";
+import {
+  gameTypeSelectOptions,
+  tempPlayerNamesSelectOption,
+} from "@/types/options";
+import { ZodErrorMessage } from "../custom/zod-error-message";
 
 export default function CreateGameForm() {
   const {
@@ -32,6 +36,34 @@ export default function CreateGameForm() {
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
+          <label htmlFor="players" className="mb-2 block text-sm font-medium">
+            1st
+          </label>
+          <div className="relative">
+            <select
+              {...register("players")}
+              id="players"
+              name="players"
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue=""
+              aria-describedby="players-error"
+              required
+            >
+              <option value="" disabled>
+                Game Type
+              </option>
+              {gameTypeSelectOptions.map((i) => (
+                <option key={i.label} value={i.value}>
+                  {i.value}
+                </option>
+              ))}
+            </select>
+            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          </div>
+          <ZodErrorMessage
+            id="players-error"
+            error={errors["players"]?.message}
+          />
           <label
             htmlFor="player_1st"
             className="mb-2 block text-sm font-medium"
@@ -40,31 +72,59 @@ export default function CreateGameForm() {
           </label>
           <div className="relative">
             <select
+              {...register("players_1st")}
               id="player_1st"
               name="player_1st"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
               aria-describedby="player_1st-error"
+              required
             >
               <option value="" disabled>
                 Select a player
               </option>
-              {tempPlayerNamesSelectOption.map((player) => (
-                <option key={player.label} value={player.value}>
-                  {player.value}
+              {tempPlayerNamesSelectOption.map((i) => (
+                <option key={i.label} value={i.value}>
+                  {i.value}
                 </option>
               ))}
             </select>
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-          <div id="customer-error" aria-live="polite" aria-atomic="true">
-            {formState.errors?.players_1st &&
-              formState.errors.players_1st.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
+          <ZodErrorMessage
+            id="player_1st-error"
+            error={errors["players_1st"]?.message}
+          />
+          <label
+            htmlFor="players_2nd"
+            className="mb-2 block text-sm font-medium"
+          >
+            2nd
+          </label>
+          <div className="relative">
+            <select
+              {...register("players_2nd")}
+              id="players_2nd"
+              name="players_2nd"
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              aria-describedby="players_2nd-error"
+              required
+            >
+              <option value="" disabled>
+                Select a player
+              </option>
+              {tempPlayerNamesSelectOption.map((i) => (
+                <option key={i.label} value={i.value}>
+                  {i.value}
+                </option>
               ))}
+            </select>
+            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
+          <ZodErrorMessage
+            id="players_2nd-error"
+            error={errors["players_2nd"]?.message}
+          />
         </div>
 
         {/* Invoice Amount */}
