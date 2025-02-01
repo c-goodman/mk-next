@@ -7,7 +7,7 @@ import {
   ExclamationCircleIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
-import { Button } from "@/components/ui/custom/c-button";
+import { CButton } from "@/components/ui/custom/c-button";
 import { useActionState } from "react";
 import { authenticate } from "@/app/lib/auth-actions";
 import Link from "next/link";
@@ -66,7 +66,7 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <Button
+        <CButton
           className="mt-4 w-full"
           aria-disabled={isPending}
           type="submit"
@@ -75,7 +75,7 @@ export default function LoginForm() {
         >
           Log in with Credentials{" "}
           <ClipboardDocumentListIcon className="ml-auto h-7 w-7 text-gray-50" />
-        </Button>
+        </CButton>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?
           <Link className="underline ml-2" href="signup">

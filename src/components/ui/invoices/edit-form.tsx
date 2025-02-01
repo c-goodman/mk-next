@@ -8,7 +8,7 @@ import {
     UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { Button } from '@/components/ui/custom/c-button';
+import { CButton } from '@/components/ui/custom/c-button';
 import { State, updateInvoice } from '@/app/lib/actions';
 import { useActionState } from 'react';
 
@@ -133,7 +133,7 @@ export default function EditInvoiceForm({
                 >
                     Cancel
                 </Link>
-                <Button type="submit">Edit Invoice</Button>
+                <CButton type="submit">Edit Invoice</CButton>
             </div>
         </form>
     );

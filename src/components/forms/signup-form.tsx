@@ -8,7 +8,7 @@ import {
   UserCircleIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/solid";
-import { Button } from "@/components/ui/custom/c-button";
+import { CButton } from "@/components/ui/custom/c-button";
 import { useActionState } from "react";
 import { signupUserAction, SignupUserState } from "@/app/lib/auth-actions";
 import Link from "next/link";
@@ -113,7 +113,7 @@ export default function SignupForm() {
             />
           </div>
         </div>
-        <Button
+        <CButton
           className="mt-4 w-full"
           aria-disabled={!isValid || isSubmitting}
           disabled={!isValid || isSubmitting}
@@ -123,7 +123,7 @@ export default function SignupForm() {
         >
           Sign Up{" "}
           <ClipboardDocumentListIcon className="ml-auto h-7 w-7 text-gray-50" />
-        </Button>
+        </CButton>
         <div className="mt-4 text-center text-sm">
           Have an account?
           <Link className="underline ml-2" href="login">
