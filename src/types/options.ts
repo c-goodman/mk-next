@@ -41,7 +41,7 @@ export const tempPlayerNames = [
   "Austin",
   "Miller",
   "Chloe",
-];
+] as const;
 
 export const tempPlayerNamesEnum = z.enum([
   "Cooper",
@@ -85,12 +85,52 @@ export const tempPlayerNamesEnum = z.enum([
   "Chloe",
 ]);
 
-export const tempPlayerNamesSelectOption = tempPlayerNamesEnum.options.map(
-  (val) => ({
-    value: val,
-    label: val,
-  })
-);
+export const tempPlayerNamesSelectOption = tempPlayerNames.map((val) => ({
+  value: val,
+  label: val,
+}));
+
+export const playerNamesComboboxOptions = [
+  { label: "Cooper", value: "Cooper" },
+  { label: "Blake", value: "Blake" },
+  { label: "Cole", value: "Cole" },
+  { label: "Regan", value: "Regan" },
+  { label: "Matt", value: "Matt" },
+  { label: "Connor", value: "Connor" },
+  { label: "Konnor", value: "Konnor" },
+  { label: "Garrett", value: "Garrett" },
+  { label: "Domingo", value: "Domingo" },
+  { label: "Colton", value: "Colton" },
+  { label: "Luke", value: "Luke" },
+  { label: "Antonio", value: "Antonio" },
+  { label: "Triston", value: "Triston" },
+  { label: "Robert", value: "Robert" },
+  { label: "Randy", value: "Randy" },
+  { label: "Chandler", value: "Chandler" },
+  { label: "Sam", value: "Sam" },
+  { label: "Hughes", value: "Hughes" },
+  { label: "Joey", value: "Joey" },
+  { label: "Jake", value: "Jake" },
+  { label: "Mikey", value: "Mikey" },
+  { label: "Martin", value: "Martin" },
+  { label: "Kali", value: "Kali" },
+  { label: "Sudur", value: "Sudur" },
+  { label: "Anthony", value: "Anthony" },
+  { label: "Kayla", value: "Kayla" },
+  { label: "Graber", value: "Graber" },
+  { label: "Caskey", value: "Caskey" },
+  { label: "Justin", value: "Justin" },
+  { label: "Kieran", value: "Kieran" },
+  { label: "Mitch", value: "Mitch" },
+  { label: "Ben", value: "Ben" },
+  { label: "Billy", value: "Billy" },
+  { label: "Coop W", value: "Coop W" },
+  { label: "Andrew", value: "Andrew" },
+  { label: "Duncan P", value: "Duncan P" },
+  { label: "Austin", value: "Austin" },
+  { label: "Miller", value: "Miller" },
+  { label: "Chloe", value: "Chloe" },
+] as const;
 
 export const characterNames = z.enum([
   "Peach",

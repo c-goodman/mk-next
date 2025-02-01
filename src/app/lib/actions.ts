@@ -1,9 +1,6 @@
 "use server";
 
-import {
-  CreateGameSchema,
-  TCreateGameState,
-} from "@/components/forms/schemas/game-schema";
+import { CreateGameSchema } from "@/components/forms/schemas/game-schema";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -133,92 +130,112 @@ export async function deleteInvoice(id: string) {
 // --------------------------------------------------------
 // Games
 // --------------------------------------------------------
+export type TCreateGameState = {
+  errors?: {
+    players?: string[];
+    players_1st?: string[];
+    players_2nd?: string[];
+    players_3rd?: string[];
+    players_4th?: string[];
+  };
+  message?: string | null;
+};
+
 export async function createGame(
   prevState: TCreateGameState,
   formData: FormData
 ) {
   // Apply zod validation to formData
   const validatedFields = CreateGameSchema.safeParse({
-    timestamp: new Date(),
-    new_session: "NO",
-    suid: 0,
-    map: formData.get("map"),
+    // timestamp: new Date(),
+    // new_session: "NO",
+    // suid: 0,
+    // timestamp: formData.get("timestamp"),
+    // new_session: formData.get("new_session"),
+    // suid: formData.get("suid"),
+    // map: formData.get("map"),
     players: formData.get("players"),
     players_1st: formData.get("players_1st"),
     players_2nd: formData.get("players_2nd"),
     players_3rd: formData.get("players_3rd"),
     players_4th: formData.get("players_4th"),
-    characters_1st: formData.get("characters_1st"),
-    characters_2nd: formData.get("characters_2nd"),
-    characters_3rd: formData.get("characters_3rd"),
-    characters_4th: formData.get("characters_4th"),
-    season: 0,
+    // characters_1st: formData.get("characters_1st"),
+    // characters_2nd: formData.get("characters_2nd"),
+    // characters_3rd: formData.get("characters_3rd"),
+    // characters_4th: formData.get("characters_4th"),
+    // season: formData.get("season"),
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
-  if (!validatedFields.success) {
+  if (validatedFields.success === false) {
+    console.log(JSON.stringify(validatedFields.data));
     return {
+      ...prevState,
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Create Invoice.",
+      message: "Missing Fields. Failed to Create Game.",
     };
   }
 
   // Prepare data for insertion into the database
-  const {
-    new_session,
-    suid,
-    map,
-    players,
-    players_1st,
-    players_2nd,
-    players_3rd,
-    players_4th,
-    characters_1st,
-    characters_2nd,
-    characters_3rd,
-    characters_4th,
-    season,
-  } = validatedFields.data;
+  // const {
+  //   new_session,
+  //   suid,
+  //   map,
+  //   players,
+  //   players_1st,
+  //   players_2nd,
+  //   players_3rd,
+  //   players_4th,
+  //   characters_1st,
+  //   characters_2nd,
+  //   characters_3rd,
+  //   characters_4th,
+  //   season,
+  // } = validatedFields.data;
 
   try {
+    console.log(JSON.stringify(validatedFields.data));
+
     // Insert data into db
-    await sql`
-            INSERT INTO mk_form_data (
-              timestamp,
-              new_session,
-              suid,
-              map,
-              players,
-              players_1st,
-              players_2nd,
-              players_3rd,
-              players_4th,
-              characters_1st,
-              characters_2nd,
-              characters_3rd,
-              characters_4th,
-              season
-            )
-            VALUES (
-              ${new Date().toISOString()},
-              ${new_session},
-              ${suid},
-              ${map},
-              ${players},
-              ${players_1st},
-              ${players_2nd},
-              ${players_3rd},
-              ${players_4th},
-              ${characters_1st},
-              ${characters_2nd},
-              ${characters_3rd},
-              ${characters_4th},
-              ${season}
-            )
-            `;
+    // await sql`
+    //         INSERT INTO mk_form_data (
+    //           timestamp,
+    //           new_session,
+    //           suid,
+    //           map,
+    //           players,
+    //           players_1st,
+    //           players_2nd,
+    //           players_3rd,
+    //           players_4th,
+    //           characters_1st,
+    //           characters_2nd,
+    //           characters_3rd,
+    //           characters_4th,
+    //           season
+    //         )
+    //         VALUES (
+    //           ${new Date().toISOString()},
+    //           ${new_session},
+    //           ${suid},
+    //           ${map},
+    //           ${players},
+    //           ${players_1st},
+    //           ${players_2nd},
+    //           ${players_3rd},
+    //           ${players_4th},
+    //           ${characters_1st},
+    //           ${characters_2nd},
+    //           ${characters_3rd},
+    //           ${characters_4th},
+    //           ${season}
+    //         )
+    //         `;
   } catch (error) {
     console.log("Database Error", error);
     return {
+      ...prevState,
+      errors: {},
       message: "Database Error: Failed to Create Game.",
     };
   }
