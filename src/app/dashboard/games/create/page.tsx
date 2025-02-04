@@ -1,5 +1,5 @@
 import Breadcrumbs from "@/components/ui/invoices/breadcrumbs";
-import { CreateGameFormProvider } from "@/components/forms/create-game-form-provider";
+import CreateGameForm from "@/components/forms/create-game-form";
 
 export default async function Page() {
   return (
@@ -14,7 +14,7 @@ export default async function Page() {
           },
         ]}
       />
-      <CreateGameFormProvider />
+      <CreateGameForm />
     </main>
   );
 }
