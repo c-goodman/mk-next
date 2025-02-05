@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// ----------------------------------------------
+// Player Names
+// ----------------------------------------------
 // TODO: Get values from Users table
 export const tempPlayerNames = [
   "Cooper",
@@ -43,53 +46,6 @@ export const tempPlayerNames = [
   "Chloe",
 ] as const;
 
-export const tempPlayerNamesEnum = z.enum([
-  "Cooper",
-  "Blake",
-  "Cole",
-  "Regan",
-  "Matt",
-  "Connor",
-  "Konnor",
-  "Garrett",
-  "Domingo",
-  "Colton",
-  "Luke",
-  "Antonio",
-  "Triston",
-  "Robert",
-  "Randy",
-  "Chandler",
-  "Sam",
-  "Hughes",
-  "Joey",
-  "Jake",
-  "Mikey",
-  "Martin",
-  "Kali",
-  "Sudur",
-  "Anthony",
-  "Kayla",
-  "Graber",
-  "Caskey",
-  "Justin",
-  "Kieran",
-  "Mitch",
-  "Ben",
-  "Billy",
-  "Coop W",
-  "Andrew",
-  "Duncan P",
-  "Austin",
-  "Miller",
-  "Chloe",
-]);
-
-export const tempPlayerNamesSelectOption = tempPlayerNames.map((val) => ({
-  value: val,
-  label: val,
-}));
-
 export const playerNamesComboboxOptions = [
   { label: "Cooper", value: "Cooper" },
   { label: "Blake", value: "Blake" },
@@ -132,7 +88,17 @@ export const playerNamesComboboxOptions = [
   { label: "Chloe", value: "Chloe" },
 ] as const;
 
-export const characterNames = z.enum([
+export const tempPlayerNamesEnum = z.enum(tempPlayerNames);
+
+export const tempPlayerNamesSelectOption = tempPlayerNames.map((val) => ({
+  value: val,
+  label: val,
+}));
+
+// ----------------------------------------------
+// Character Names
+// ----------------------------------------------
+export const characterNames = [
   "Peach",
   "Toad",
   "Yoshi",
@@ -141,15 +107,33 @@ export const characterNames = z.enum([
   "Mario",
   "Wario",
   "D.K.",
-]);
+] as const;
 
-export const characterNamesSelectOptions = characterNames.options.map(
+export const characterNamesComboboxOptions = [
+  { label: "Peach", value: "Peach" },
+  { label: "Toad", value: "Toad" },
+  { label: "Yoshi", value: "Yoshi" },
+  { label: "Bowser", value: "Bowser" },
+  { label: "Luigi", value: "Luigi" },
+  { label: "Mario", value: "Mario" },
+  { label: "Wario", value: "Wario" },
+  { label: "D.K.", value: "D.K." },
+] as const;
+
+export const characterNamesEnum = z.enum(characterNames);
+
+export const characterNamesSelectOptions = characterNamesEnum.options.map(
   (val) => ({
     value: val,
     label: val,
   })
 );
 
+// ----------------------------------------------
+// Maps
+// ----------------------------------------------
+// Frequency
+// -----------------------
 export const mapNamesFrequency = z.enum([
   "Wario Stadium",
   "Toad's Turnpike",
@@ -166,7 +150,7 @@ export const mapNamesFrequency = z.enum([
   "Mario Raceway",
   "Luigi Raceway",
   "Moo Moo Farm",
-]);
+] as const);
 
 export const mapNamesFrequencySelectOptions = mapNamesFrequency.options.map(
   (val) => ({
@@ -175,7 +159,9 @@ export const mapNamesFrequencySelectOptions = mapNamesFrequency.options.map(
   })
 );
 
-export const mapNamesAlphabetical = z.enum([
+// Alphabetical
+// -----------------------
+export const mapNamesAlphabeticalEnum = z.enum([
   "Banshee Boardwalk",
   "Bowser's Castle",
   "Choco Mountain",
@@ -191,15 +177,36 @@ export const mapNamesAlphabetical = z.enum([
   "Toad's Turnpike",
   "Wario Stadium",
   "Yoshi Valley",
-]);
+] as const);
+
+export const mapNamesAlphabeticalComboboxOptions = [
+  { label: "Banshee Boardwalk", value: "Banshee Boardwalk" },
+  { label: "Bowser's Castle", value: "Bowser's Castle" },
+  { label: "Choco Mountain", value: "Choco Mountain" },
+  { label: "D.K.'s Jungle", value: "D.K.'s Jungle" },
+  { label: "Frappe Snowland", value: "Frappe Snowland" },
+  { label: "Kalimari Desert", value: "Kalimari Desert" },
+  { label: "Koopa Troopa Beach", value: "Koopa Troopa Beach" },
+  { label: "Luigi Raceway", value: "Luigi Raceway" },
+  { label: "Mario Raceway", value: "Mario Raceway" },
+  { label: "Moo Moo Farm", value: "Moo Moo Farm" },
+  { label: "Royal Raceway", value: "Royal Raceway" },
+  { label: "Sherbet Land", value: "Sherbet Land" },
+  { label: "Toad's Turnpike", value: "Toad's Turnpike" },
+  { label: "Wario Stadium", value: "Wario Stadium" },
+  { label: "Yoshi Valley", value: "Yoshi Valley" },
+] as const;
 
 export const mapNamesAlphabeticalSelectOptions =
-  mapNamesAlphabetical.options.map((val) => ({
+  mapNamesAlphabeticalEnum.options.map((val) => ({
     value: val,
     label: val,
   }));
 
-export const gameType = z.enum(["4", "3", "2"]);
+// ----------------------------------------------
+// Game Type
+// ----------------------------------------------
+export const gameType = z.enum(["4", "3", "2"] as const);
 
 export const gameTypeSelectOptions = gameType.options.map((val) => ({
   value: val,

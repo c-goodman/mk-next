@@ -1,8 +1,8 @@
 import { z } from "zod";
 import {
-  characterNames,
+  characterNamesEnum,
   gameType,
-  mapNamesAlphabetical,
+  mapNamesAlphabeticalEnum,
   tempPlayerNamesEnum,
 } from "@/types/options";
 
@@ -11,16 +11,16 @@ export const GameSchema = z.object({
   timestamp: z.date(),
   new_session: z.string(),
   suid: z.number(),
-  map: mapNamesAlphabetical,
+  map: mapNamesAlphabeticalEnum,
   players: gameType,
   players_1st: tempPlayerNamesEnum.or(z.literal("")),
   players_2nd: tempPlayerNamesEnum.or(z.literal("")),
   players_3rd: tempPlayerNamesEnum.or(z.literal("")),
   players_4th: tempPlayerNamesEnum.or(z.literal("")),
-  characters_1st: characterNames.or(z.literal("")),
-  characters_2nd: characterNames.or(z.literal("")),
-  characters_3rd: characterNames.or(z.literal("")),
-  characters_4th: characterNames.or(z.literal("")),
+  characters_1st: characterNamesEnum.or(z.literal("")),
+  characters_2nd: characterNamesEnum.or(z.literal("")),
+  characters_3rd: characterNamesEnum.or(z.literal("")),
+  characters_4th: characterNamesEnum.or(z.literal("")),
   season: z.number(),
 });
 
@@ -29,16 +29,16 @@ export const GameSchema = z.object({
 // --------------------------------------------------------
 export const CreateGameSchema = z
   .object({
-    map: mapNamesAlphabetical.or(z.literal("")),
+    map: mapNamesAlphabeticalEnum.or(z.literal("")),
     players: gameType.or(z.literal("")),
     players_1st: tempPlayerNamesEnum.or(z.literal("")),
     players_2nd: tempPlayerNamesEnum.or(z.literal("")),
     players_3rd: tempPlayerNamesEnum.or(z.literal("")),
     players_4th: tempPlayerNamesEnum.or(z.literal("")),
-    characters_1st: characterNames.or(z.literal("")),
-    characters_2nd: characterNames.or(z.literal("")),
-    characters_3rd: characterNames.or(z.literal("")),
-    characters_4th: characterNames.or(z.literal("")),
+    characters_1st: characterNamesEnum.or(z.literal("")),
+    characters_2nd: characterNamesEnum.or(z.literal("")),
+    characters_3rd: characterNamesEnum.or(z.literal("")),
+    characters_4th: characterNamesEnum.or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     // Game Type
@@ -377,16 +377,16 @@ export const defaultValuesUpdateGameSchema: TUpdateGameSchema = {
   new_session: "",
   // TODO: getCurrentSession fetch service
   suid: 0,
-  map: mapNamesAlphabetical.options[0],
+  map: mapNamesAlphabeticalEnum.options[0],
   players: gameType.options[0],
   players_1st: "",
   players_2nd: "",
   players_3rd: "",
   players_4th: "",
-  characters_1st: characterNames.options[0],
-  characters_2nd: characterNames.options[1],
-  characters_3rd: characterNames.options[2],
-  characters_4th: characterNames.options[3],
+  characters_1st: characterNamesEnum.options[0],
+  characters_2nd: characterNamesEnum.options[1],
+  characters_3rd: characterNamesEnum.options[2],
+  characters_4th: characterNamesEnum.options[3],
   // TODO: getCurrentSeason fetch service
   season: 0,
 };
