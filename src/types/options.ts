@@ -22,6 +22,7 @@ export const tempPlayerNames = [
   "Randy",
   "Chandler",
   "Sam",
+  "Richard",
   "Hughes",
   "Joey",
   "Jake",
