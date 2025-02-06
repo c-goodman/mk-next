@@ -65,6 +65,7 @@ export const playerNamesComboboxOptions = [
   { label: "Randy", value: "Randy" },
   { label: "Chandler", value: "Chandler" },
   { label: "Sam", value: "Sam" },
+  { label: "Richard", value: "Richard" },
   { label: "Hughes", value: "Hughes" },
   { label: "Joey", value: "Joey" },
   { label: "Jake", value: "Jake" },
