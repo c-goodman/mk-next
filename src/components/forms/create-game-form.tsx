@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CButton } from "@/components/ui/custom/c-button";
@@ -7,11 +8,17 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createGame, TCreateGameState } from "@/app/lib/actions";
 import { defaultValuesCreateGameSchema } from "./schemas/game-schema";
-import { gameType, playerNamesComboboxOptions } from "@/types/options";
+import {
+  characterNamesComboboxOptions,
+  characterNamesEnum,
+  gameType,
+  mapNamesAlphabeticalComboboxOptions,
+  mapNamesAlphabeticalEnum,
+  playerNamesComboboxOptions,
+} from "@/types/options";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { useActionState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ZodErrorMessage } from "../custom/zod-error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -43,6 +50,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
+import { useFetchCharacters } from "@/app/lib/hooks/fetch-hooks";
+
+const charactersData = await useFetchCharacters();
 
 export default function CreateGameForm() {
   const form = useForm<TCreateGameSchema>({
@@ -50,11 +60,21 @@ export default function CreateGameForm() {
     defaultValues: defaultValuesCreateGameSchema,
   });
 
+  // const [charactersData, setCharactersData] = useState(null);
+  // const [isLoading, setLoading] = useState(true)
+
+  const [openMap, setOpenMap] = useState(false);
   const [openFirstPlace, setOpenFirstPlace] = useState(false);
   const [openSecondPlace, setOpenSecondPlace] = useState(false);
   const [openThirdPlace, setOpenThirdPlace] = useState(false);
   const [openFourthPlace, setOpenFourthPlace] = useState(false);
-  //   const [value, setValue] = useState("");
+
+  const [openFirstPlaceCharacter, setOpenFirstPlaceCharacter] = useState(false);
+  const [openSecondPlaceCharacter, setOpenSecondPlaceCharacter] =
+    useState(false);
+  const [openThirdPlaceCharacter, setOpenThirdPlaceCharacter] = useState(false);
+  const [openFourthPlaceCharacter, setOpenFourthPlaceCharacter] =
+    useState(false);
 
   const initialState: TCreateGameState = { message: null, errors: {} };
 
@@ -64,26 +84,37 @@ export default function CreateGameForm() {
   );
 
   const watchPlayers = form.watch("players");
-  const watchFirstPlace = form.watch("players_1st");
 
-  console.log(watchPlayers);
-  console.log(watchFirstPlace);
+  // useEffect(() => {
+  //   // https://nextjs.org/docs/pages/building-your-application/data-fetching/client-side
+  //   useFetchCharacters()
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setCharactersData(data);
+  //       // setLoading(false);
+  //     });
+  // }, [setCharactersData]);
 
   useEffect(() => {
     if (watchPlayers === "2") {
+      // 2 Player Game -> Set 4th and 3rd Player items to nullish
       form.setValue("players_4th", "");
+      form.setValue("characters_4th", "");
       form.setValue("players_3rd", "");
+      form.setValue("characters_3rd", "");
     }
 
     if (watchPlayers === "3") {
+      // 3 Player Game -> Set 4th Player items to nullish
       form.setValue("players_4th", "");
+      form.setValue("characters_4th", "");
     }
   }, [form, watchPlayers]);
 
   function onSubmit(values: TCreateGameSchema) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
+    // console.log(values);
   }
 
   return (
@@ -120,6 +151,70 @@ export default function CreateGameForm() {
             />
             <FormField
               control={form.control}
+              name="map"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Map </FormLabel>
+                  <Popover open={openMap} onOpenChange={setOpenMap}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openMap}
+                          className="w-[200px] justify-between"
+                        >
+                          {field.value
+                            ? mapNamesAlphabeticalComboboxOptions.find(
+                                (item) => item.value === field.value
+                              )?.label
+                            : "Select Map..."}
+                          <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search Map..."
+                          className="h-9"
+                        />
+                        <CommandList>
+                          <CommandEmpty>No Map Found.</CommandEmpty>
+                          <CommandGroup>
+                            {mapNamesAlphabeticalComboboxOptions.map((item) => (
+                              <CommandItem
+                                key={item.value}
+                                value={item.value}
+                                onSelect={() => {
+                                  form.setValue("map", item.value);
+                                  setOpenFirstPlace(false);
+                                }}
+                              >
+                                {item.label}
+                                <Check
+                                  key={item.value}
+                                  className={cn(
+                                    "ml-auto",
+                                    item.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>What map?</FormDescription>
+                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="players_1st"
               render={({ field }) => (
                 <FormItem>
@@ -140,7 +235,7 @@ export default function CreateGameForm() {
                             ? playerNamesComboboxOptions.find(
                                 (item) => item.value === field.value
                               )?.label
-                            : "Select item..."}
+                            : "Select Player..."}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </FormControl>
@@ -148,7 +243,7 @@ export default function CreateGameForm() {
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
                         <CommandInput
-                          placeholder="Search item..."
+                          placeholder="Search Player..."
                           className="h-9"
                         />
                         <CommandList>
@@ -185,9 +280,87 @@ export default function CreateGameForm() {
                 </FormItem>
               )}
             />
-            <ZodErrorMessage
-              id="players_1st-error"
-              error={form.formState.errors["players_1st"]?.message}
+            <FormField
+              control={form.control}
+              name="characters_1st"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>1st Character </FormLabel>
+                  <Popover
+                    open={openFirstPlaceCharacter}
+                    onOpenChange={setOpenFirstPlaceCharacter}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openFirstPlaceCharacter}
+                          className="w-[200px] justify-between"
+                        >
+                          {field.value
+                            ? characterNamesComboboxOptions.find(
+                                (item) => item.value === field.value
+                              )?.label
+                            : "Select Character..."}
+                          <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search Character..."
+                          className="h-9"
+                        />
+                        <CommandList>
+                          <CommandEmpty>No Character Found.</CommandEmpty>
+                          <CommandGroup>
+                            {characterNamesComboboxOptions.map((item) => (
+                              <CommandItem
+                                key={item.value}
+                                value={item.value}
+                                onSelect={() => {
+                                  form.setValue("characters_1st", item.value);
+                                  setOpenFirstPlace(false);
+                                }}
+                              >
+                                {charactersData && (
+                                  <Image
+                                    src={
+                                      charactersData
+                                        .filter(
+                                          (c) => c.character === item.label
+                                        )
+                                        .map((e) => e.image_url_portrait_won)[0]
+                                    }
+                                    className="rounded-full"
+                                    width={40}
+                                    height={40}
+                                    alt={`First place character picture`}
+                                  />
+                                )}
+                                {item.label}
+                                <Check
+                                  key={item.value}
+                                  className={cn(
+                                    "ml-auto",
+                                    item.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>As which character?</FormDescription>
+                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                </FormItem>
+              )}
             />
             <FormField
               control={form.control}
@@ -211,7 +384,7 @@ export default function CreateGameForm() {
                             ? playerNamesComboboxOptions.find(
                                 (item) => item.value === field.value
                               )?.label
-                            : "Select item..."}
+                            : "Select Player..."}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </FormControl>
@@ -219,7 +392,7 @@ export default function CreateGameForm() {
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
                         <CommandInput
-                          placeholder="Search item..."
+                          placeholder="Search Player..."
                           className="h-9"
                         />
                         <CommandList>
@@ -256,6 +429,48 @@ export default function CreateGameForm() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="characters_2nd"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>2nd Character</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="How many players?" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {characterNamesEnum.options.map((item) => (
+                        <SelectItem key={item} value={item}>
+                          <div>
+                            {charactersData && (
+                              <Image
+                                src={
+                                  charactersData
+                                    .filter((c) => c.character === item)
+                                    .map((e) => e.image_url_portrait_won)[0]
+                                }
+                                className="rounded-full"
+                                width={40}
+                                height={40}
+                                alt={`First place character picture`}
+                              />
+                            )}
+                            {item}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                </FormItem>
+              )}
+            />
             {watchPlayers !== "2" && (
               <FormField
                 control={form.control}
@@ -279,7 +494,7 @@ export default function CreateGameForm() {
                               ? playerNamesComboboxOptions.find(
                                   (item) => item.value === field.value
                                 )?.label
-                              : "Select item..."}
+                              : "Select Player..."}
                             <ChevronsUpDown className="opacity-50" />
                           </Button>
                         </FormControl>
@@ -287,7 +502,7 @@ export default function CreateGameForm() {
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
                           <CommandInput
-                            placeholder="Search item..."
+                            placeholder="Search Player..."
                             className="h-9"
                           />
                           <CommandList>
@@ -348,7 +563,7 @@ export default function CreateGameForm() {
                               ? playerNamesComboboxOptions.find(
                                   (item) => item.value === field.value
                                 )?.label
-                              : "Select item..."}
+                              : "Select Player..."}
                             <ChevronsUpDown className="opacity-50" />
                           </Button>
                         </FormControl>
@@ -356,7 +571,7 @@ export default function CreateGameForm() {
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
                           <CommandInput
-                            placeholder="Search item..."
+                            placeholder="Search Player..."
                             className="h-9"
                           />
                           <CommandList>
