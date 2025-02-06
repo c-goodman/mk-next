@@ -13,6 +13,7 @@ import {
 } from "./definitions";
 import { formatCurrency } from "./utils";
 import { ITEMS_PER_PAGE } from "@/types/constants";
+import { GAMES_PER_SEASON } from "../../types/constants";
 
 export async function fetchRevenue() {
   try {
@@ -337,6 +338,50 @@ export async function fetchGamesPages(query: string) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch total number of games.");
+  }
+}
+
+export async function fetchGamesCounts() {
+  try {
+    const totalGamesCountPromise = sql`SELECT COUNT(*) FROM mk_form_data`;
+    const totalUsersCountPromise = sql`SELECT COUNT(*) FROM users`;
+    const currentSeasonGamesPromise = sql`
+      SELECT COUNT(*) AS count, mk_form_data.season FROM mk_form_data
+        GROUP BY mk_form_data.season
+        ORDER BY mk_form_data.season DESC`;
+
+    // const invoiceStatusPromise = sql`SELECT
+    //      SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
+    //      SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
+    //      FROM mk_form_data`;
+
+    const data = await Promise.all([
+      totalGamesCountPromise,
+      totalUsersCountPromise,
+      currentSeasonGamesPromise,
+      // customerCountPromise,
+      // invoiceStatusPromise,
+    ]);
+
+    const totalNumberOfGames = Number(data[0].rows[0].count ?? "0");
+    const totalNumberOfUsers = Number(data[1].rows[0].count ?? "0");
+    const currentSeasonNumberOfGames = Number(data[2].rows[0].count ?? "0");
+    const currentSeason = Number(data[2].rows[0].season ?? "0");
+    const currentSeasonNumberOfGamesRemaining =
+      GAMES_PER_SEASON - currentSeasonNumberOfGames;
+    // const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? "0");
+    // const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? "0");
+
+    return {
+      totalNumberOfGames,
+      totalNumberOfUsers,
+      currentSeasonNumberOfGames,
+      currentSeason,
+      currentSeasonNumberOfGamesRemaining,
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch card data.");
   }
 }
 
