@@ -132,11 +132,16 @@ export async function deleteInvoice(id: string) {
 // --------------------------------------------------------
 export type TCreateGameState = {
   errors?: {
+    map?: string[];
     players?: string[];
     players_1st?: string[];
     players_2nd?: string[];
     players_3rd?: string[];
     players_4th?: string[];
+    characters_1st?: string[];
+    characters_2nd?: string[];
+    characters_3rd?: string[];
+    characters_4th?: string[];
   };
   message?: string | null;
 };
@@ -145,6 +150,9 @@ export async function createGame(
   prevState: TCreateGameState,
   formData: FormData
 ) {
+
+  console.log("got here")
+
   // Apply zod validation to formData
   const validatedFields = CreateGameSchema.safeParse({
     // timestamp: new Date(),
@@ -153,16 +161,16 @@ export async function createGame(
     // timestamp: formData.get("timestamp"),
     // new_session: formData.get("new_session"),
     // suid: formData.get("suid"),
-    // map: formData.get("map"),
+    map: formData.get("map"),
     players: formData.get("players"),
     players_1st: formData.get("players_1st"),
     players_2nd: formData.get("players_2nd"),
     players_3rd: formData.get("players_3rd"),
     players_4th: formData.get("players_4th"),
-    // characters_1st: formData.get("characters_1st"),
-    // characters_2nd: formData.get("characters_2nd"),
-    // characters_3rd: formData.get("characters_3rd"),
-    // characters_4th: formData.get("characters_4th"),
+    characters_1st: formData.get("characters_1st"),
+    characters_2nd: formData.get("characters_2nd"),
+    characters_3rd: formData.get("characters_3rd"),
+    characters_4th: formData.get("characters_4th"),
     // season: formData.get("season"),
   });
 
