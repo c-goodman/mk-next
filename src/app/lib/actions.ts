@@ -1,6 +1,9 @@
 "use server";
 
-import { CreateGameSchema } from "@/components/forms/schemas/game-schema";
+import {
+  CreateGameSchema,
+  TCreateGameSchema,
+} from "@/components/forms/schemas/game-schema";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -148,30 +151,20 @@ export type TCreateGameState = {
 
 export async function createGame(
   prevState: TCreateGameState,
-  formData: FormData
+  formData: TCreateGameSchema
 ) {
-
-  console.log("got here")
-
   // Apply zod validation to formData
   const validatedFields = CreateGameSchema.safeParse({
-    // timestamp: new Date(),
-    // new_session: "NO",
-    // suid: 0,
-    // timestamp: formData.get("timestamp"),
-    // new_session: formData.get("new_session"),
-    // suid: formData.get("suid"),
-    map: formData.get("map"),
-    players: formData.get("players"),
-    players_1st: formData.get("players_1st"),
-    players_2nd: formData.get("players_2nd"),
-    players_3rd: formData.get("players_3rd"),
-    players_4th: formData.get("players_4th"),
-    characters_1st: formData.get("characters_1st"),
-    characters_2nd: formData.get("characters_2nd"),
-    characters_3rd: formData.get("characters_3rd"),
-    characters_4th: formData.get("characters_4th"),
-    // season: formData.get("season"),
+    map: formData.map,
+    players: formData.players,
+    players_1st: formData.players_1st,
+    players_2nd: formData.players_2nd,
+    players_3rd: formData.players_3rd,
+    players_4th: formData.players_4th,
+    characters_1st: formData.characters_1st,
+    characters_2nd: formData.characters_2nd,
+    characters_3rd: formData.characters_3rd,
+    characters_4th: formData.characters_4th,
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
@@ -185,60 +178,61 @@ export async function createGame(
   }
 
   // Prepare data for insertion into the database
-  // const {
-  //   new_session,
-  //   suid,
-  //   map,
-  //   players,
-  //   players_1st,
-  //   players_2nd,
-  //   players_3rd,
-  //   players_4th,
-  //   characters_1st,
-  //   characters_2nd,
-  //   characters_3rd,
-  //   characters_4th,
-  //   season,
-  // } = validatedFields.data;
+  const {
+    map,
+    players,
+    players_1st,
+    players_2nd,
+    players_3rd,
+    players_4th,
+    characters_1st,
+    characters_2nd,
+    characters_3rd,
+    characters_4th,
+  } = validatedFields.data;
+
+  // Set server controlled values
+  const timestamp = new Date().toISOString();
+  const new_session = "NO";
+  const suid = 0;
+  const season = 16;
 
   try {
-    console.log(JSON.stringify(validatedFields.data));
-
     // Insert data into db
-    // await sql`
-    //         INSERT INTO mk_form_data (
-    //           timestamp,
-    //           new_session,
-    //           suid,
-    //           map,
-    //           players,
-    //           players_1st,
-    //           players_2nd,
-    //           players_3rd,
-    //           players_4th,
-    //           characters_1st,
-    //           characters_2nd,
-    //           characters_3rd,
-    //           characters_4th,
-    //           season
-    //         )
-    //         VALUES (
-    //           ${new Date().toISOString()},
-    //           ${new_session},
-    //           ${suid},
-    //           ${map},
-    //           ${players},
-    //           ${players_1st},
-    //           ${players_2nd},
-    //           ${players_3rd},
-    //           ${players_4th},
-    //           ${characters_1st},
-    //           ${characters_2nd},
-    //           ${characters_3rd},
-    //           ${characters_4th},
-    //           ${season}
-    //         )
-    //         `;
+    await sql`
+            INSERT INTO mk_form_data (
+              timestamp,
+              new_session,
+              suid,
+              map,
+              players,
+              players_1st,
+              players_2nd,
+              players_3rd,
+              players_4th,
+              characters_1st,
+              characters_2nd,
+              characters_3rd,
+              characters_4th,
+              season
+            )
+            VALUES (
+              ${timestamp},
+              ${new_session},
+              ${suid},
+              ${map},
+              ${players},
+              ${players_1st},
+              ${players_2nd},
+              ${players_3rd},
+              ${players_4th},
+              ${characters_1st},
+              ${characters_2nd},
+              ${characters_3rd},
+              ${characters_4th},
+              ${season}
+            )
+            `;
   } catch (error) {
     console.log("Database Error", error);
     return {
