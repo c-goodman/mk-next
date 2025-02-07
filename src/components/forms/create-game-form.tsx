@@ -114,10 +114,7 @@ export default function CreateGameForm() {
   }, [form, watchPlayers]);
 
   const onSubmit = async (values: TCreateGameSchema) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    // console.log(values);
-
+    // https://brockherion.dev/blog/posts/using-react-hook-form-with-nextjs-13-server-actions/
     await createGame(formActionState, values);
   };
 
