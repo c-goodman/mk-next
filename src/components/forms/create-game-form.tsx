@@ -9,10 +9,8 @@ import { cn } from "@/lib/utils";
 import { createGame, TCreateGameState } from "@/app/lib/actions";
 import { defaultValuesCreateGameSchema } from "./schemas/game-schema";
 import {
-  characterNamesComboboxOptions,
   characterNamesEnum,
   gameType,
-  mapNamesAlphabeticalComboboxOptions,
   mapNamesAlphabeticalEnum,
   playerNamesComboboxOptions,
 } from "@/types/options";
@@ -36,7 +34,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,11 +47,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
-import { useFetchCharacters, useFetchMaps } from "@/app/lib/hooks/fetch-hooks";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+// import { useFetchCharacters, useFetchMaps } from "@/app/lib/hooks/fetch-hooks";
+import { fetchCharacters, fetchMaps } from "@/app/lib/data";
 
-const charactersData = await useFetchCharacters();
-const mapsData = await useFetchMaps();
+// const charactersData = await useFetchCharacters();
+// const mapsData = await useFetchMaps();
 
 export default function CreateGameForm() {
   const form = useForm<TCreateGameSchema>({
@@ -62,21 +59,20 @@ export default function CreateGameForm() {
     defaultValues: defaultValuesCreateGameSchema,
   });
 
-  // const [charactersData, setCharactersData] = useState(null);
+  // const charactersData = useFetchCharacters();
+  // const mapsData = useFetchMaps();
+
+  const [charactersData, setCharactersData] = useState([
+    { character: "", image_url_portrait_won: "", image_url_portrait_lost: "" },
+  ]);
+  const [mapsData, setMapsData] = useState([{ map: "", image_url: "" }]);
+
   // const [isLoading, setLoading] = useState(true)
 
-  const [openMap, setOpenMap] = useState(false);
   const [openFirstPlace, setOpenFirstPlace] = useState(false);
   const [openSecondPlace, setOpenSecondPlace] = useState(false);
   const [openThirdPlace, setOpenThirdPlace] = useState(false);
   const [openFourthPlace, setOpenFourthPlace] = useState(false);
-
-  const [openFirstPlaceCharacter, setOpenFirstPlaceCharacter] = useState(false);
-  const [openSecondPlaceCharacter, setOpenSecondPlaceCharacter] =
-    useState(false);
-  const [openThirdPlaceCharacter, setOpenThirdPlaceCharacter] = useState(false);
-  const [openFourthPlaceCharacter, setOpenFourthPlaceCharacter] =
-    useState(false);
 
   const initialState: TCreateGameState = { message: null, errors: {} };
 
@@ -98,6 +94,24 @@ export default function CreateGameForm() {
   // }, [setCharactersData]);
 
   useEffect(() => {
+    // https://stackoverflow.com/a/67547285
+    async function setData() {
+      // const charactersDataInitial = await useFetchCharacters();
+      // const mapsDataInitial = await useFetchMaps();
+
+      const charactersDataInitial = await fetchCharacters();
+      const mapsDataInitial = await fetchMaps();
+
+      console.log(JSON.stringify(charactersDataInitial));
+
+      setCharactersData(charactersDataInitial);
+      setMapsData(mapsDataInitial);
+    }
+
+    setData();
+  }, [setCharactersData, setMapsData]);
+
+  useEffect(() => {
     if (watchPlayers === "2") {
       // 2 Player Game -> Set 4th and 3rd Player items to nullish
       form.setValue("players_4th", "");
@@ -116,7 +130,7 @@ export default function CreateGameForm() {
   function onSubmit(values: TCreateGameSchema) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    // console.log(values);
+    console.log(values);
   }
 
   return (
@@ -178,7 +192,7 @@ export default function CreateGameForm() {
                               className="relative flex items-center  justify-between"
                             >
                               <div className="flex flex-row items-center">
-                                {mapsData && (
+                                {mapsData[0].map !== "" && (
                                   <Image
                                     src={
                                       mapsData
@@ -293,7 +307,7 @@ export default function CreateGameForm() {
                             className="relative flex items-center w-[200px] justify-between"
                           >
                             <div className="flex flex-row items-center">
-                              {charactersData && (
+                              {charactersData[0].character !== "" && (
                                 <Image
                                   src={
                                     charactersData
@@ -406,7 +420,7 @@ export default function CreateGameForm() {
                             className="relative flex items-center w-[200px] justify-between"
                           >
                             <div className="flex flex-row items-center">
-                              {charactersData && (
+                              {charactersData[0].character !== "" && (
                                 <Image
                                   src={
                                     charactersData
@@ -521,7 +535,7 @@ export default function CreateGameForm() {
                               className="relative flex items-center w-[200px] justify-between"
                             >
                               <div className="flex flex-row items-center">
-                                {charactersData && (
+                                {charactersData[0].character !== "" && (
                                   <Image
                                     src={
                                       charactersData
@@ -638,7 +652,7 @@ export default function CreateGameForm() {
                               className="relative flex items-center w-[200px] justify-between"
                             >
                               <div className="flex flex-row items-center">
-                                {charactersData && (
+                                {charactersData[0].character !== "" && (
                                   <Image
                                     src={
                                       charactersData
