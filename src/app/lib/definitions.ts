@@ -128,3 +128,12 @@ export type TCharactersTable = {
   image_url_portrait_won: string;
   type: string;
 };
+
+// --------------------------------------------------------
+// Maps
+// --------------------------------------------------------
+export type TMapsTable = {
+  id: number;
+  map: string;
+  image_url: string;
+};
