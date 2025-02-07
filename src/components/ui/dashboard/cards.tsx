@@ -1,11 +1,11 @@
+import { fetchGamesCounts } from '@/app/lib/data';
+import { lusitana } from '@/components/ui/fonts';
 import {
   ClockIcon,
   UserGroupIcon,
   FireIcon,
   FlagIcon,
 } from "@heroicons/react/24/outline";
-import { lusitana } from "@/components/ui/fonts";
-import { fetchCardData, fetchGamesCounts } from "@/app/lib/data";
 
 const iconMap = {
   current: FireIcon,
