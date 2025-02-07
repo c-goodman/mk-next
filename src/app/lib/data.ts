@@ -8,6 +8,7 @@ import {
   Revenue,
   TCharactersTable,
   TGamesTable,
+  TMapsTable,
   TUserNames,
   TUsersTable,
 } from "./definitions";
@@ -405,5 +406,25 @@ export async function fetchCharacters() {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch characters.");
+  }
+}
+
+// --------------------------------------------------------
+// Maps
+// --------------------------------------------------------
+export async function fetchMaps() {
+  try {
+    const maps = await sql<TMapsTable>`
+      SELECT
+        mk_maps.id
+        ,mk_maps.map
+        ,mk_maps.image_url
+      FROM mk_maps
+    `;
+
+    return maps.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch maps.");
   }
 }
