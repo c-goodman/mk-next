@@ -50,17 +50,11 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 // import { useFetchCharacters, useFetchMaps } from "@/app/lib/hooks/fetch-hooks";
 import { fetchCharacters, fetchMaps } from "@/app/lib/data";
 
-// const charactersData = await useFetchCharacters();
-// const mapsData = await useFetchMaps();
-
 export default function CreateGameForm() {
   const form = useForm<TCreateGameSchema>({
     resolver: zodResolver(CreateGameSchema),
     defaultValues: defaultValuesCreateGameSchema,
   });
-
-  // const charactersData = useFetchCharacters();
-  // const mapsData = useFetchMaps();
 
   const [charactersData, setCharactersData] = useState([
     { character: "", image_url_portrait_won: "", image_url_portrait_lost: "" },
@@ -96,13 +90,8 @@ export default function CreateGameForm() {
   useEffect(() => {
     // https://stackoverflow.com/a/67547285
     async function setData() {
-      // const charactersDataInitial = await useFetchCharacters();
-      // const mapsDataInitial = await useFetchMaps();
-
       const charactersDataInitial = await fetchCharacters();
       const mapsDataInitial = await fetchMaps();
-
-      console.log(JSON.stringify(charactersDataInitial));
 
       setCharactersData(charactersDataInitial);
       setMapsData(mapsDataInitial);
