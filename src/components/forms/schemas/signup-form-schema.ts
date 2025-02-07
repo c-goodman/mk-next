@@ -82,7 +82,7 @@ export const SignupSchema = z
 
     // If any records are returned raise an error
     // users.name has a unique constraint in the database
-    if (userData.length > 0) {
+    if (userData[0].map((i) => i.name).length > 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["username"],
@@ -96,7 +96,7 @@ export const SignupSchema = z
 
     // If any records are returned raise an error
     // users.name has a unique constraint in the database
-    if (userData.length > 0) {
+    if (userData[0].map((i) => i.email).length > 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["email"],
