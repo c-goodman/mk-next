@@ -50,9 +50,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
-import { useFetchCharacters } from "@/app/lib/hooks/fetch-hooks";
+import { useFetchCharacters, useFetchMaps } from "@/app/lib/hooks/fetch-hooks";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 const charactersData = await useFetchCharacters();
+const mapsData = await useFetchMaps();
 
 export default function CreateGameForm() {
   const form = useForm<TCreateGameSchema>({
@@ -122,492 +124,546 @@ export default function CreateGameForm() {
       <form action={formAction} onSubmit={form.handleSubmit(onSubmit)}>
         <div className="rounded-md bg-gray-50 p-4 md:p-6">
           <div className="mb-4">
-            <FormField
-              control={form.control}
-              name="players"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Players</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="How many players?" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {gameType.options.map((item) => (
-                        <SelectItem key={item} value={item}>
-                          {item}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="map"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Map </FormLabel>
-                  <Popover open={openMap} onOpenChange={setOpenMap}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openMap}
-                          className="w-[200px] justify-between"
-                        >
-                          {field.value
-                            ? mapNamesAlphabeticalComboboxOptions.find(
-                                (item) => item.value === field.value
-                              )?.label
-                            : "Select Map..."}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search Map..."
-                          className="h-9"
-                        />
-                        <CommandList>
-                          <CommandEmpty>No Map Found.</CommandEmpty>
-                          <CommandGroup>
-                            {mapNamesAlphabeticalComboboxOptions.map((item) => (
-                              <CommandItem
-                                key={item.value}
-                                value={item.value}
-                                onSelect={() => {
-                                  form.setValue("map", item.value);
-                                  setOpenFirstPlace(false);
-                                }}
-                              >
-                                {item.label}
-                                <Check
+            <div className="flex flex-col md:flex-row items-start mb-4">
+              <div className="flex flex-col mb-2 md:mr-2">
+                <FormField
+                  control={form.control}
+                  name="players"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Players</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[200px] h-[45px] justify-between bg-white">
+                            <SelectValue placeholder="How many players?" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {gameType.options.map((item) => (
+                            <SelectItem key={item} value={item}>
+                              {item}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex flex-col items-center mb-2">
+                <FormField
+                  control={form.control}
+                  name="map"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Map</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="flex w-[240px] h-[45px] justify-between bg-white">
+                            <SelectValue placeholder="Select Map..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="relative flex items-center w-[240px] justify-between">
+                          {mapNamesAlphabeticalEnum.options.map((item) => (
+                            <SelectItem
+                              key={item}
+                              value={item}
+                              className="relative flex items-center  justify-between"
+                            >
+                              <div className="flex flex-row items-center">
+                                {mapsData && (
+                                  <Image
+                                    src={
+                                      mapsData
+                                        .filter((m) => m.map === item)
+                                        .map((e) => e.image_url)[0]
+                                    }
+                                    className="rounded-sm mr-1"
+                                    width={50}
+                                    height={50}
+                                    alt={`${item} picture`}
+                                  />
+                                )}
+                                {item}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col bg-gray-200 rounded-md mb-4 md:mb-6 p-2">
+              <h2 className="mb-2">First Place</h2>
+              <FormField
+                control={form.control}
+                name="players_1st"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mb-1">
+                    <Popover
+                      open={openFirstPlace}
+                      onOpenChange={setOpenFirstPlace}
+                    >
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openFirstPlace}
+                            className="w-[200px] justify-between"
+                          >
+                            {field.value
+                              ? playerNamesComboboxOptions.find(
+                                  (item) => item.value === field.value
+                                )?.label
+                              : "Select Player..."}
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search Player..."
+                            className="h-9"
+                          />
+                          <CommandList>
+                            <CommandEmpty>No Player Found.</CommandEmpty>
+                            <CommandGroup>
+                              {playerNamesComboboxOptions.map((item) => (
+                                <CommandItem
                                   key={item.value}
-                                  className={cn(
-                                    "ml-auto",
-                                    item.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>What map?</FormDescription>
-                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="players_1st"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>1st Place </FormLabel>
-                  <Popover
-                    open={openFirstPlace}
-                    onOpenChange={setOpenFirstPlace}
-                  >
-                    <PopoverTrigger asChild>
+                                  value={item.value}
+                                  onSelect={() => {
+                                    form.setValue("players_1st", item.value);
+                                    setOpenFirstPlace(false);
+                                  }}
+                                >
+                                  {item.label}
+                                  <Check
+                                    key={item.value}
+                                    className={cn(
+                                      "ml-auto",
+                                      item.value === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {/* <FormDescription>Who got first?</FormDescription> */}
+                    <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="characters_1st"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mb-1">
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openFirstPlace}
-                          className="w-[200px] justify-between"
-                        >
-                          {field.value
-                            ? playerNamesComboboxOptions.find(
-                                (item) => item.value === field.value
-                              )?.label
-                            : "Select Player..."}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
+                        <SelectTrigger className="w-[200px] h-[45px] justify-between bg-white">
+                          <SelectValue placeholder="Select Character..." />
+                        </SelectTrigger>
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search Player..."
-                          className="h-9"
-                        />
-                        <CommandList>
-                          <CommandEmpty>No Player Found.</CommandEmpty>
-                          <CommandGroup>
-                            {playerNamesComboboxOptions.map((item) => (
-                              <CommandItem
-                                key={item.value}
-                                value={item.value}
-                                onSelect={() => {
-                                  form.setValue("players_1st", item.value);
-                                  setOpenFirstPlace(false);
-                                }}
-                              >
-                                {item.label}
-                                <Check
+                      <SelectContent className="relative flex items-center w-[200px] justify-between">
+                        {characterNamesEnum.options.map((item) => (
+                          <SelectItem
+                            key={item}
+                            value={item}
+                            className="relative flex items-center w-[200px] justify-between"
+                          >
+                            <div className="flex flex-row items-center">
+                              {charactersData && (
+                                <Image
+                                  src={
+                                    charactersData
+                                      .filter((c) => c.character === item)
+                                      .map((e) => e.image_url_portrait_won)[0]
+                                  }
+                                  className="rounded-full mr-1"
+                                  width={40}
+                                  height={40}
+                                  alt={`First place character picture`}
+                                />
+                              )}
+                              {item}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex flex-col bg-gray-200 rounded-md mb-4 md:mb-6 p-2">
+              <h2 className="mb-2">Second Place</h2>
+              <FormField
+                control={form.control}
+                name="players_2nd"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mb-1">
+                    <Popover
+                      open={openSecondPlace}
+                      onOpenChange={setOpenSecondPlace}
+                    >
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openSecondPlace}
+                            className="w-[200px] justify-between"
+                          >
+                            {field.value
+                              ? playerNamesComboboxOptions.find(
+                                  (item) => item.value === field.value
+                                )?.label
+                              : "Select Player..."}
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search Player..."
+                            className="h-9"
+                          />
+                          <CommandList>
+                            <CommandEmpty>No Player Found.</CommandEmpty>
+                            <CommandGroup>
+                              {playerNamesComboboxOptions.map((item) => (
+                                <CommandItem
                                   key={item.value}
-                                  className={cn(
-                                    "ml-auto",
-                                    item.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>Who got first?</FormDescription>
-                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="characters_1st"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>1st Character </FormLabel>
-                  <Popover
-                    open={openFirstPlaceCharacter}
-                    onOpenChange={setOpenFirstPlaceCharacter}
-                  >
-                    <PopoverTrigger asChild>
+                                  value={item.value}
+                                  onSelect={() => {
+                                    form.setValue("players_2nd", item.value);
+                                    setOpenSecondPlace(false);
+                                  }}
+                                >
+                                  {item.label}
+                                  <Check
+                                    key={item.value}
+                                    className={cn(
+                                      "ml-auto",
+                                      item.value === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="characters_2nd"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mb-1">
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openFirstPlaceCharacter}
-                          className="w-[200px] justify-between"
-                        >
-                          {field.value
-                            ? characterNamesComboboxOptions.find(
-                                (item) => item.value === field.value
-                              )?.label
-                            : "Select Character..."}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
+                        <SelectTrigger className="w-[200px] h-[45px] justify-between bg-white">
+                          <SelectValue placeholder="Select Character..." />
+                        </SelectTrigger>
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search Character..."
-                          className="h-9"
-                        />
-                        <CommandList>
-                          <CommandEmpty>No Character Found.</CommandEmpty>
-                          <CommandGroup>
-                            {characterNamesComboboxOptions.map((item) => (
-                              <CommandItem
-                                key={item.value}
-                                value={item.value}
-                                onSelect={() => {
-                                  form.setValue("characters_1st", item.value);
-                                  setOpenFirstPlace(false);
-                                }}
-                              >
+                      <SelectContent className="relative flex items-center w-[200px] justify-between">
+                        {characterNamesEnum.options.map((item) => (
+                          <SelectItem
+                            key={item}
+                            value={item}
+                            className="relative flex items-center w-[200px] justify-between"
+                          >
+                            <div className="flex flex-row items-center">
+                              {charactersData && (
+                                <Image
+                                  src={
+                                    charactersData
+                                      .filter((c) => c.character === item)
+                                      .map((e) => e.image_url_portrait_lost)[0]
+                                  }
+                                  className="rounded-full mr-1"
+                                  width={40}
+                                  height={40}
+                                  alt={`First place character picture`}
+                                />
+                              )}
+                              {item}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {watchPlayers !== "2" && (
+              <div className="flex flex-col bg-gray-200 rounded-md mb-4 md:mb-6 p-2">
+                <h2 className="mb-2">Third Place</h2>
+                <FormField
+                  control={form.control}
+                  name="players_3rd"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col mb-1">
+                      <Popover
+                        open={openThirdPlace}
+                        onOpenChange={setOpenThirdPlace}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openThirdPlace}
+                              className="w-[200px] justify-between"
+                            >
+                              {field.value
+                                ? playerNamesComboboxOptions.find(
+                                    (item) => item.value === field.value
+                                  )?.label
+                                : "Select Player..."}
+                              <ChevronsUpDown className="opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search Player..."
+                              className="h-9"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No Player Found.</CommandEmpty>
+                              <CommandGroup>
+                                {playerNamesComboboxOptions.map((item) => (
+                                  <CommandItem
+                                    key={item.value}
+                                    value={item.value}
+                                    onSelect={() => {
+                                      form.setValue("players_3rd", item.value);
+                                      setOpenThirdPlace(false);
+                                    }}
+                                  >
+                                    {item.label}
+                                    <Check
+                                      key={item.value}
+                                      className={cn(
+                                        "ml-auto",
+                                        item.value === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="characters_3rd"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col mb-1">
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[200px] h-[45px] justify-between bg-white">
+                            <SelectValue placeholder="Select Character..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="relative flex items-center w-[200px] justify-between">
+                          {characterNamesEnum.options.map((item) => (
+                            <SelectItem
+                              key={item}
+                              value={item}
+                              className="relative flex items-center w-[200px] justify-between"
+                            >
+                              <div className="flex flex-row items-center">
                                 {charactersData && (
                                   <Image
                                     src={
                                       charactersData
-                                        .filter(
-                                          (c) => c.character === item.label
-                                        )
-                                        .map((e) => e.image_url_portrait_won)[0]
+                                        .filter((c) => c.character === item)
+                                        .map(
+                                          (e) => e.image_url_portrait_lost
+                                        )[0]
                                     }
-                                    className="rounded-full"
+                                    className="rounded-full mr-1"
                                     width={40}
                                     height={40}
                                     alt={`First place character picture`}
                                   />
                                 )}
-                                {item.label}
-                                <Check
-                                  key={item.value}
-                                  className={cn(
-                                    "ml-auto",
-                                    item.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>As which character?</FormDescription>
-                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="players_2nd"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>2nd Place </FormLabel>
-                  <Popover
-                    open={openSecondPlace}
-                    onOpenChange={setOpenSecondPlace}
-                  >
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openSecondPlace}
-                          className="w-[200px] justify-between"
-                        >
-                          {field.value
-                            ? playerNamesComboboxOptions.find(
-                                (item) => item.value === field.value
-                              )?.label
-                            : "Select Player..."}
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search Player..."
-                          className="h-9"
-                        />
-                        <CommandList>
-                          <CommandEmpty>No Player Found.</CommandEmpty>
-                          <CommandGroup>
-                            {playerNamesComboboxOptions.map((item) => (
-                              <CommandItem
-                                key={item.value}
-                                value={item.value}
-                                onSelect={() => {
-                                  form.setValue("players_2nd", item.value);
-                                  setOpenSecondPlace(false);
-                                }}
-                              >
-                                {item.label}
-                                <Check
-                                  key={item.value}
-                                  className={cn(
-                                    "ml-auto",
-                                    item.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>Who got second?</FormDescription>
-                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="characters_2nd"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>2nd Character</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="How many players?" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {characterNamesEnum.options.map((item) => (
-                        <SelectItem key={item} value={item}>
-                          <div>
-                            {charactersData && (
-                              <Image
-                                src={
-                                  charactersData
-                                    .filter((c) => c.character === item)
-                                    .map((e) => e.image_url_portrait_won)[0]
-                                }
-                                className="rounded-full"
-                                width={40}
-                                height={40}
-                                alt={`First place character picture`}
-                              />
-                            )}
-                            {item}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                </FormItem>
-              )}
-            />
-            {watchPlayers !== "2" && (
-              <FormField
-                control={form.control}
-                name="players_3rd"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>3rd Place </FormLabel>
-                    <Popover
-                      open={openThirdPlace}
-                      onOpenChange={setOpenThirdPlace}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={openThirdPlace}
-                            className="w-[200px] justify-between"
-                          >
-                            {field.value
-                              ? playerNamesComboboxOptions.find(
-                                  (item) => item.value === field.value
-                                )?.label
-                              : "Select Player..."}
-                            <ChevronsUpDown className="opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search Player..."
-                            className="h-9"
-                          />
-                          <CommandList>
-                            <CommandEmpty>No Player Found.</CommandEmpty>
-                            <CommandGroup>
-                              {playerNamesComboboxOptions.map((item) => (
-                                <CommandItem
-                                  key={item.value}
-                                  value={item.value}
-                                  onSelect={() => {
-                                    form.setValue("players_3rd", item.value);
-                                    setOpenThirdPlace(false);
-                                  }}
-                                >
-                                  {item.label}
-                                  <Check
-                                    key={item.value}
-                                    className={cn(
-                                      "ml-auto",
-                                      item.value === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>Who got third?</FormDescription>
-                    <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                  </FormItem>
-                )}
-              />
+                                {item}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                    </FormItem>
+                  )}
+                />
+              </div>
             )}
             {watchPlayers !== "2" && watchPlayers !== "3" && (
-              <FormField
-                control={form.control}
-                name="players_4th"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>4th Place </FormLabel>
-                    <Popover
-                      open={openFourthPlace}
-                      onOpenChange={setOpenFourthPlace}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={openFourthPlace}
-                            className="w-[200px] justify-between"
-                          >
-                            {field.value
-                              ? playerNamesComboboxOptions.find(
-                                  (item) => item.value === field.value
-                                )?.label
-                              : "Select Player..."}
-                            <ChevronsUpDown className="opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search Player..."
-                            className="h-9"
-                          />
-                          <CommandList>
-                            <CommandEmpty>No Player Found.</CommandEmpty>
-                            <CommandGroup>
-                              {playerNamesComboboxOptions.map((item) => (
-                                <CommandItem
-                                  key={item.value}
-                                  value={item.value}
-                                  onSelect={() => {
-                                    form.setValue("players_4th", item.value);
-                                    setOpenFourthPlace(false);
-                                  }}
-                                >
-                                  {item.label}
-                                  <Check
+              <div className="flex flex-col bg-gray-200 rounded-md mb-4 md:mb-6 p-2">
+                <h2 className="mb-2">Fourth Place</h2>
+                <FormField
+                  control={form.control}
+                  name="players_4th"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col mb-1">
+                      <Popover
+                        open={openFourthPlace}
+                        onOpenChange={setOpenFourthPlace}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openFourthPlace}
+                              className="w-[200px] justify-between"
+                            >
+                              {field.value
+                                ? playerNamesComboboxOptions.find(
+                                    (item) => item.value === field.value
+                                  )?.label
+                                : "Select Player..."}
+                              <ChevronsUpDown className="opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search Player..."
+                              className="h-9"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No Player Found.</CommandEmpty>
+                              <CommandGroup>
+                                {playerNamesComboboxOptions.map((item) => (
+                                  <CommandItem
                                     key={item.value}
-                                    className={cn(
-                                      "ml-auto",
-                                      item.value === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
+                                    value={item.value}
+                                    onSelect={() => {
+                                      form.setValue("players_4th", item.value);
+                                      setOpenFourthPlace(false);
+                                    }}
+                                  >
+                                    {item.label}
+                                    <Check
+                                      key={item.value}
+                                      className={cn(
+                                        "ml-auto",
+                                        item.value === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="characters_4th"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col mb-1">
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[200px] h-[45px] justify-between bg-white">
+                            <SelectValue placeholder="Select Character..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="relative flex items-center w-[200px] justify-between">
+                          {characterNamesEnum.options.map((item) => (
+                            <SelectItem
+                              key={item}
+                              value={item}
+                              className="relative flex items-center w-[200px] justify-between"
+                            >
+                              <div className="flex flex-row items-center">
+                                {charactersData && (
+                                  <Image
+                                    src={
+                                      charactersData
+                                        .filter((c) => c.character === item)
+                                        .map(
+                                          (e) => e.image_url_portrait_lost
+                                        )[0]
+                                    }
+                                    className="rounded-full mr-1"
+                                    width={40}
+                                    height={40}
+                                    alt={`First place character picture`}
                                   />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>Who got last? {`:(`}</FormDescription>
-                    <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
-                  </FormItem>
-                )}
-              />
+                                )}
+                                {item}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-red-500 text-xs italic mt-1 py-2" />
+                    </FormItem>
+                  )}
+                />
+              </div>
             )}
           </div>
           <div className="mt-6 flex justify-end gap-4">
