@@ -47,7 +47,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
-// import { useFetchCharacters, useFetchMaps } from "@/app/lib/hooks/fetch-hooks";
 import { fetchCharacters, fetchMaps } from "@/app/lib/data";
 
 export default function CreateGameForm() {
@@ -60,8 +59,6 @@ export default function CreateGameForm() {
     { character: "", image_url_portrait_won: "", image_url_portrait_lost: "" },
   ]);
   const [mapsData, setMapsData] = useState([{ map: "", image_url: "" }]);
-
-  // const [isLoading, setLoading] = useState(true)
 
   const [openFirstPlace, setOpenFirstPlace] = useState(false);
   const [openSecondPlace, setOpenSecondPlace] = useState(false);
@@ -116,15 +113,17 @@ export default function CreateGameForm() {
     }
   }, [form, watchPlayers]);
 
-  function onSubmit(values: TCreateGameSchema) {
+  const onSubmit = async (values: TCreateGameSchema) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+    // console.log(values);
+
+    await createGame(formActionState, values);
+  };
 
   return (
     <Form {...form}>
-      <form action={formAction} onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit((values) => onSubmit(values))}>
         <div className="rounded-md bg-gray-50 p-4 md:p-6">
           <div className="mb-4">
             <div className="flex flex-col md:flex-row items-start mb-4">
