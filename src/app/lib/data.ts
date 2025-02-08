@@ -353,6 +353,12 @@ export async function fetchGamesCounts() {
         GROUP BY mk_form_data.season
         ORDER BY mk_form_data.season DESC`;
 
+    const currentSessionTimestampPromise = sql`
+    SELECT 
+        MAX(mk_form_data.suid) as current_suid 
+        ,MAX(mk_form_data.timestamp) as current_timestamp 
+      FROM mk_form_data`;
+
     // const invoiceStatusPromise = sql`SELECT
     //      SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
     //      SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
@@ -362,8 +368,7 @@ export async function fetchGamesCounts() {
       totalGamesCountPromise,
       totalUsersCountPromise,
       currentSeasonGamesPromise,
-      // customerCountPromise,
-      // invoiceStatusPromise,
+      currentSessionTimestampPromise,
     ]);
 
     const totalNumberOfGames = Number(data[0].rows[0].count ?? "0");
@@ -372,8 +377,9 @@ export async function fetchGamesCounts() {
     const currentSeason = Number(data[2].rows[0].season ?? "0");
     const currentSeasonNumberOfGamesRemaining =
       GAMES_PER_SEASON - currentSeasonNumberOfGames;
-    // const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? "0");
-    // const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? "0");
+
+    const currentSessionId = Number(data[3].rows[0].current_suid ?? "0");
+    const currentTimestamp = new Date(data[3].rows[0].current_timestamp ?? "0");
 
     return {
       totalNumberOfGames,
@@ -381,6 +387,8 @@ export async function fetchGamesCounts() {
       currentSeasonNumberOfGames,
       currentSeason,
       currentSeasonNumberOfGamesRemaining,
+      currentSessionId,
+      currentTimestamp,
     };
   } catch (error) {
     console.error("Database Error:", error);
