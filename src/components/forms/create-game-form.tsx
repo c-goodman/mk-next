@@ -55,23 +55,29 @@ export default function CreateGameForm() {
     defaultValues: defaultValuesCreateGameSchema,
   });
 
+  // Set initial states for character and map table fetch
   const [charactersData, setCharactersData] = useState([
     { character: "", image_url_portrait_won: "", image_url_portrait_lost: "" },
   ]);
   const [mapsData, setMapsData] = useState([{ map: "", image_url: "" }]);
 
+  // Open and close handling for combobox components
   const [openFirstPlace, setOpenFirstPlace] = useState(false);
   const [openSecondPlace, setOpenSecondPlace] = useState(false);
   const [openThirdPlace, setOpenThirdPlace] = useState(false);
   const [openFourthPlace, setOpenFourthPlace] = useState(false);
 
+  // Type for initial formActionState
   const initialState: TCreateGameState = { message: null, errors: {} };
 
-  const [formActionState, formAction] = useActionState(
+  // Initial state for server action, formAction unused with onSubmit handling
+  const [formActionState, _formAction] = useActionState(
     createGame,
     initialState
   );
 
+  // Watch form values
+  // Players value used to disable rendering of inputs
   const watchPlayers = form.watch("players");
 
   // useEffect(() => {
@@ -84,6 +90,7 @@ export default function CreateGameForm() {
   //     });
   // }, [setCharactersData]);
 
+  // Load characters and maps images url paths from database with useEffect
   useEffect(() => {
     // https://stackoverflow.com/a/67547285
     async function setData() {
@@ -97,6 +104,9 @@ export default function CreateGameForm() {
     setData();
   }, [setCharactersData, setMapsData]);
 
+  // If currently selected game type value is set to a lower number..
+  // ..set the value of potentially selected player or character values..
+  // ..not related to the current game type to nullish values
   useEffect(() => {
     if (watchPlayers === "2") {
       // 2 Player Game -> Set 4th and 3rd Player items to nullish
