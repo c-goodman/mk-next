@@ -352,7 +352,8 @@ export async function fetchGamesCounts() {
       SELECT COUNT(*) AS count, mk_form_data.season FROM mk_form_data
         GROUP BY mk_form_data.season
         ORDER BY mk_form_data.season DESC`;
-
+        
+    // TOTO: Make this it's own service?
     const currentSessionTimestampPromise = sql`
     SELECT 
         MAX(mk_form_data.suid) as current_suid 
