@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  UserGroupIcon,
   HomeIcon,
   DocumentDuplicateIcon,
   FlagIcon,
@@ -19,7 +18,6 @@ const links = [
     href: "/dashboard/invoices",
     icon: DocumentDuplicateIcon,
   },
-  { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
   { name: "Games", href: "/dashboard/games", icon: FlagIcon },
 ];
 
