@@ -31,7 +31,7 @@ export async function signupUserAction(
   prevState: SignupUserState,
   formData: FormData
 ) {
-  const validatedFields = SignupSchema.safeParse({
+  const validatedFields = await SignupSchema.safeParseAsync({
     username: formData.get("username"),
     password: formData.get("password"),
     email: formData.get("email"),

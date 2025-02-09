@@ -42,7 +42,7 @@ const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 export async function createInvoice(prevState: State, formData: FormData) {
   // Apply zod validation to formData
-  const validatedFields = CreateInvoice.safeParse({
+  const validatedFields = await CreateInvoice.safeParseAsync({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
     status: formData.get("status"),
@@ -88,7 +88,7 @@ export async function updateInvoice(
   prevState: State,
   formData: FormData
 ) {
-  const validatedFields = UpdateInvoice.safeParse({
+  const validatedFields = await UpdateInvoice.safeParseAsync({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
     status: formData.get("status"),
@@ -154,7 +154,7 @@ export async function createGame(
   formData: TCreateGameSchema
 ) {
   // Apply zod validation to formData
-  const validatedFields = CreateGameSchema.safeParse({
+  const validatedFields = await CreateGameSchema.safeParseAsync({
     map: formData.map,
     players: formData.players,
     players_1st: formData.players_1st,
