@@ -8,6 +8,12 @@ import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import {
+  fetchMostRecentSeasonGamesCount,
+  fetchMostRecentSession,
+} from "./data";
+import { TGamesTable, TMostRecentSeasonGamesCount } from "./definitions";
+import { GAMES_PER_SEASON } from "@/types/constants";
 
 // --------------------------------------------------------
 // Invoices
@@ -191,11 +197,75 @@ export async function createGame(
     characters_4th,
   } = validatedFields.data;
 
+  interface SessionItems {
+    new_session: string;
+    suid: number;
+  }
+
+  // TODO: test that this actually works lol
+  // Helper function to determine if a new Session UID should be created
+  function setSessionItems(
+    currentGameTimestamp: Date,
+    newSessionCutoffStartTimestamp: Date,
+    newSessionCutoffEndTimestamp: Date,
+    previousSession: TGamesTable[]
+  ): SessionItems {
+    if (
+      currentGameTimestamp >= newSessionCutoffStartTimestamp &&
+      currentGameTimestamp < newSessionCutoffEndTimestamp
+    ) {
+      if (previousSession[0].timestamp <= newSessionCutoffStartTimestamp) {
+        return { new_session: "YES", suid: previousSession[0].suid + 1 };
+      } else {
+        return { new_session: "NO", suid: previousSession[0].suid };
+      }
+    } else {
+      return { new_session: "NO", suid: previousSession[0].suid };
+    }
+  }
+
+  // Helper function to determine if a new Season UID should be created
+  function setSeasonId(
+    mostRecentSeasonGameCountsData: TMostRecentSeasonGamesCount
+  ): number {
+    if (mostRecentSeasonGameCountsData.count + 1 > GAMES_PER_SEASON) {
+      return mostRecentSeasonGameCountsData.season + 1;
+    } else {
+      return mostRecentSeasonGameCountsData.season;
+    }
+  }
+
+  // Get the most recent session and season game counts data
+  const mostRecentSession = await fetchMostRecentSession();
+  const mostRecentSeasonGameCounts = await fetchMostRecentSeasonGamesCount();
+
+  // Set the date to 7 AM UTC
+  const newSessionCutoffStart = new Date();
+  newSessionCutoffStart.setUTCHours(12, 0, 0, 0);
+
+  // Set the end of the window to 24 hours later
+  const newSessionCutoffEnd = new Date(
+    // Add 24 hours in milliseconds
+    newSessionCutoffStart.getTime() + 24 * 60 * 60 * 1000
+  );
+
   // Set server controlled values
-  const timestamp = new Date().toISOString();
-  const new_session = "NO";
-  const suid = 0;
-  const season = 16;
+  const timestamp = new Date();
+
+  const new_session = setSessionItems(
+    timestamp,
+    newSessionCutoffStart,
+    newSessionCutoffEnd,
+    mostRecentSession
+  ).new_session;
+  const suid = setSessionItems(
+    timestamp,
+    newSessionCutoffStart,
+    newSessionCutoffEnd,
+    mostRecentSession
+  ).suid;
+
+  const season = setSeasonId(mostRecentSeasonGameCounts);
 
   try {
     // Insert data into db
@@ -217,7 +287,7 @@ export async function createGame(
               season
             )
             VALUES (
-              ${timestamp},
+              ${timestamp.toISOString()},
               ${new_session},
               ${suid},
               ${map},
