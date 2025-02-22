@@ -11,6 +11,7 @@ import {
   TCharactersTable,
   TGamesTable,
   TMapsTable,
+  TMostRecentSeasonGamesCount,
   TUserNames,
   TUsersTable,
 } from "./definitions";
@@ -352,7 +353,7 @@ export async function fetchGamesCounts() {
       SELECT COUNT(*) AS count, mk_form_data.season FROM mk_form_data
         GROUP BY mk_form_data.season
         ORDER BY mk_form_data.season DESC`;
-        
+
     // TOTO: Make this it's own service?
     const currentSessionTimestampPromise = sql`
     SELECT 
@@ -394,6 +395,86 @@ export async function fetchGamesCounts() {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch card data.");
+  }
+}
+
+export async function fetchMostRecentGame(): Promise<TGamesTable> {
+  try {
+    const data = await sql<TGamesTable>`
+      SELECT 
+        mk_form_data.id
+        ,mk_form_data.timestamp
+        ,mk_form_data.new_session
+        ,mk_form_data.suid
+        ,mk_form_data.map
+        ,mk_form_data.players
+        ,mk_form_data.players_1st
+        ,mk_form_data.players_2nd
+        ,mk_form_data.players_3rd
+        ,mk_form_data.players_4th
+        ,mk_form_data.characters_1st
+        ,mk_form_data.characters_2nd
+        ,mk_form_data.characters_3rd
+        ,mk_form_data.characters_4th
+        ,mk_form_data.season 
+      FROM mk_form_data
+        ORDER BY mk_form_data.timestamp DESC
+        LIMIT 1;
+    `;
+
+    return data.rows[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user.");
+  }
+}
+
+export async function fetchMostRecentSession(): Promise<TGamesTable[]> {
+  try {
+    const data = await sql<TGamesTable>`
+      SELECT 
+        mk_form_data.id
+        ,mk_form_data.timestamp
+        ,mk_form_data.new_session
+        ,mk_form_data.suid
+        ,mk_form_data.map
+        ,mk_form_data.players
+        ,mk_form_data.players_1st
+        ,mk_form_data.players_2nd
+        ,mk_form_data.players_3rd
+        ,mk_form_data.players_4th
+        ,mk_form_data.characters_1st
+        ,mk_form_data.characters_2nd
+        ,mk_form_data.characters_3rd
+        ,mk_form_data.characters_4th
+        ,mk_form_data.season
+      FROM mk_form_data
+        WHERE mk_form_data.suid = (
+            SELECT MAX(mk_form_data.suid) FROM mk_form_data
+          )
+        ORDER BY mk_form_data.timestamp DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user.");
+  }
+}
+
+export async function fetchMostRecentSeasonGamesCount(): Promise<TMostRecentSeasonGamesCount> {
+  try {
+    const currentSeasonGamesPromise = await sql<TMostRecentSeasonGamesCount>`
+      SELECT COUNT(*) AS count, mk_form_data.season FROM mk_form_data
+        GROUP BY mk_form_data.season
+        ORDER BY mk_form_data.season DESC
+        LIMIT 1;
+      `;
+
+    return currentSeasonGamesPromise.rows[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user.");
   }
 }
 
