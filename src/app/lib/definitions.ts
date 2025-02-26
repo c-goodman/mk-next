@@ -117,6 +117,11 @@ export type TGamesTable = {
   image_url: string;
 };
 
+export type TMostRecentSeasonGamesCountInitial = {
+  count: string;
+  season: number;
+};
+
 export type TMostRecentSeasonGamesCount = {
   count: number;
   season: number;

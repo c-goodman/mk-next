@@ -1,6 +1,10 @@
 "use server";
 
+import { formatCurrency } from "./utils";
+import { GAMES_PER_SEASON } from "../../types/constants";
+import { ITEMS_PER_PAGE } from "@/types/constants";
 import { sql } from "@vercel/postgres";
+
 import {
   CustomerField,
   CustomersTableType,
@@ -12,12 +16,10 @@ import {
   TGamesTable,
   TMapsTable,
   TMostRecentSeasonGamesCount,
+  TMostRecentSeasonGamesCountInitial,
   TUserNames,
   TUsersTable,
 } from "./definitions";
-import { formatCurrency } from "./utils";
-import { ITEMS_PER_PAGE } from "@/types/constants";
-import { GAMES_PER_SEASON } from "../../types/constants";
 
 export async function fetchRevenue() {
   try {
@@ -464,14 +466,19 @@ export async function fetchMostRecentSession(): Promise<TGamesTable[]> {
 
 export async function fetchMostRecentSeasonGamesCount(): Promise<TMostRecentSeasonGamesCount> {
   try {
-    const currentSeasonGamesPromise = await sql<TMostRecentSeasonGamesCount>`
+    const currentSeasonGamesPromise =
+      await sql<TMostRecentSeasonGamesCountInitial>`
       SELECT COUNT(*) AS count, mk_form_data.season FROM mk_form_data
         GROUP BY mk_form_data.season
         ORDER BY mk_form_data.season DESC
         LIMIT 1;
       `;
 
-    return currentSeasonGamesPromise.rows[0];
+    // Deconstruct items
+    const { count, season } = currentSeasonGamesPromise.rows[0];
+
+    // Convert counts from string to number
+    return { count: Number(count), season: season };
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch user.");
