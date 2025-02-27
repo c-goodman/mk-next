@@ -40,8 +40,10 @@ export const CreateGameSchema = z
     characters_3rd: characterNamesEnum.or(z.literal("")),
     characters_4th: characterNamesEnum.or(z.literal("")),
   })
+  // ------------------------------------------------------
+  // Game Type
+  // ------------------------------------------------------
   .superRefine((data, ctx) => {
-    // Game Type
     if (data.players === "") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -50,16 +52,10 @@ export const CreateGameSchema = z
       });
     }
   })
+  // ------------------------------------------------------
+  // Map
+  // ------------------------------------------------------
   .superRefine((data, ctx) => {
-    // Map
-    if (data.map === "") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["map"],
-        message: "Map must be specified",
-      });
-    }
-
     if (data.map === "") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -68,70 +64,36 @@ export const CreateGameSchema = z
       });
     }
   })
+  // ------------------------------------------------------
+  // 4 Player Games
+  // ------------------------------------------------------
+  // ---------------------------------------
+  // Players 4P
+  // ---------------------------------------
   .superRefine((data, ctx) => {
-    // 4 Player Games
-    // ---------------------------
-    // Players
-    // ---------------------------
-    const playersArray = [
+    // -------------------
+    // Players (Unique)
+    // -------------------
+    const playersArrayFour = [
       data.players_1st,
       data.players_2nd,
       data.players_3rd,
       data.players_4th,
     ];
 
-    const playersInputFields = [
+    const playersInputFieldsFour = [
       "players_1st",
       "players_2nd",
       "players_3rd",
       "players_4th",
     ];
 
-    const playersSet = new Set(playersArray);
+    const playersSetFour = new Set(playersArrayFour);
 
-    playersInputFields.forEach((fieldName, _index) => {
-      if (data.players === "4" && playersArray.length !== playersSet.size) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [fieldName],
-          message: "No duplicates allowed",
-        });
-      }
-    });
-
-    playersInputFields.forEach((fieldName, _index) => {
-      if (data.players === "4" && playersArray.some((value) => value === "")) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [fieldName],
-          message: "All Players must have a value",
-        });
-      }
-    });
-
-    // ---------------------------
-    // Characters
-    // ---------------------------
-    const charactersArray = [
-      data.players_1st,
-      data.players_2nd,
-      data.players_3rd,
-      data.players_4th,
-    ];
-
-    const charactersInputFields = [
-      "characters_1st",
-      "characters_2nd",
-      "characters_3rd",
-      "characters_4th",
-    ];
-
-    const charactersSet = new Set(charactersArray);
-
-    charactersInputFields.forEach((fieldName, _index) => {
+    playersInputFieldsFour.forEach((fieldName, _index) => {
       if (
         data.players === "4" &&
-        charactersArray.length !== charactersSet.size
+        playersArrayFour.length !== playersSetFour.size
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -140,11 +102,96 @@ export const CreateGameSchema = z
         });
       }
     });
+  })
+  .superRefine((data, ctx) => {
+    // -------------------
+    // Players (Not Null)
+    // -------------------
+    const playersArrayFour = [
+      data.players_1st,
+      data.players_2nd,
+      data.players_3rd,
+      data.players_4th,
+    ];
 
-    charactersInputFields.forEach((fieldName, _index) => {
+    const playersInputFieldsFour = [
+      "players_1st",
+      "players_2nd",
+      "players_3rd",
+      "players_4th",
+    ];
+
+    playersInputFieldsFour.forEach((fieldName, _index) => {
       if (
         data.players === "4" &&
-        charactersArray.some((value) => value === "")
+        playersArrayFour.some((value) => value === "")
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [fieldName],
+          message: "All Players must have a value",
+        });
+      }
+    });
+  })
+  // ---------------------------------------
+  // Characters 4P
+  // ---------------------------------------
+  .superRefine((data, ctx) => {
+    // -------------------
+    // Characters (Unique)
+    // -------------------
+    const charactersArrayFour = [
+      data.characters_1st,
+      data.characters_2nd,
+      data.characters_3rd,
+      data.characters_4th,
+    ];
+
+    const charactersInputFieldsFour = [
+      "characters_1st",
+      "characters_2nd",
+      "characters_3rd",
+      "characters_4th",
+    ];
+
+    const charactersSetFour = new Set(charactersArrayFour);
+
+    charactersInputFieldsFour.forEach((fieldName, _index) => {
+      if (
+        data.players === "4" &&
+        charactersArrayFour.length !== charactersSetFour.size
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [fieldName],
+          message: "No duplicates allowed",
+        });
+      }
+    });
+  })
+  .superRefine((data, ctx) => {
+    // -------------------
+    // Characters (Not Null)
+    // -------------------
+    const charactersArrayFour = [
+      data.characters_1st,
+      data.characters_2nd,
+      data.characters_3rd,
+      data.characters_4th,
+    ];
+
+    const charactersInputFieldsFour = [
+      "characters_1st",
+      "characters_2nd",
+      "characters_3rd",
+      "characters_4th",
+    ];
+
+    charactersInputFieldsFour.forEach((fieldName, _index) => {
+      if (
+        data.players === "4" &&
+        charactersArrayFour.some((value) => value === "")
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -154,19 +201,35 @@ export const CreateGameSchema = z
       }
     });
   })
+  // ------------------------------------------------------
+  // 3 Player Games
+  // ------------------------------------------------------
   .superRefine((data, ctx) => {
-    // 3 Player Games
-    // ---------------------------
-    // Players
-    // ---------------------------
-    const playersArray = [data.players_1st, data.players_2nd, data.players_3rd];
-    const playersSet = new Set(playersArray);
+    // ---------------------------------------
+    // Players 3P
+    // ---------------------------------------
+    const playersArrayThree = [
+      data.players_1st,
+      data.players_2nd,
+      data.players_3rd,
+    ];
+    const playersSetThree = new Set(playersArrayThree);
 
-    const playersInputFields = ["players_1st", "players_2nd", "players_3rd"];
+    const playersInputFieldsThree = [
+      "players_1st",
+      "players_2nd",
+      "players_3rd",
+    ];
     const onlyThreePlayerInputFields = ["players", "players_4th"];
 
-    playersInputFields.forEach((fieldName, _index) => {
-      if (data.players === "3" && playersArray.length !== playersSet.size) {
+    // -------------------
+    // Players (Unique)
+    // -------------------
+    playersInputFieldsThree.forEach((fieldName, _index) => {
+      if (
+        data.players === "3" &&
+        playersArrayThree.length !== playersSetThree.size
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [fieldName],
@@ -175,8 +238,14 @@ export const CreateGameSchema = z
       }
     });
 
-    playersInputFields.forEach((fieldName, _index) => {
-      if (data.players === "3" && playersArray.some((value) => value === "")) {
+    // -------------------
+    // Players (Not Null)
+    // -------------------
+    playersInputFieldsThree.forEach((fieldName, _index) => {
+      if (
+        data.players === "3" &&
+        playersArrayThree.some((value) => value === "")
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [fieldName],
@@ -185,6 +254,9 @@ export const CreateGameSchema = z
       }
     });
 
+    // -------------------
+    // Players (4th Player Explicit Null)
+    // -------------------
     onlyThreePlayerInputFields.forEach((fieldName, _index) => {
       if (data.players === "3" && data.players_4th !== "") {
         ctx.addIssue({
@@ -195,29 +267,32 @@ export const CreateGameSchema = z
       }
     });
 
-    // ---------------------------
-    // Characters
-    // ---------------------------
-    const charactersArray = [
-      data.players_1st,
-      data.players_2nd,
-      data.players_3rd,
+    // ---------------------------------------
+    // Characters 3P
+    // ---------------------------------------
+    const charactersArrayThree = [
+      data.characters_1st,
+      data.characters_2nd,
+      data.characters_3rd,
     ];
 
-    const charactersInputFields = [
+    const charactersInputFieldsThree = [
       "characters_1st",
       "characters_2nd",
       "characters_3rd",
     ];
 
-    const onlyThreeCharacterInputFields = ["players", "characters_4th"];
+    const onlyCharacterInputFieldsThree = ["players", "characters_4th"];
 
-    const charactersSet = new Set(charactersArray);
+    const charactersSetThree = new Set(charactersArrayThree);
 
-    charactersInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Characters (Unique)
+    // -------------------
+    charactersInputFieldsThree.forEach((fieldName, _index) => {
       if (
         data.players === "3" &&
-        charactersArray.length !== charactersSet.size
+        charactersArrayThree.length !== charactersSetThree.size
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -227,10 +302,13 @@ export const CreateGameSchema = z
       }
     });
 
-    charactersInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Characters (Not Null)
+    // -------------------
+    charactersInputFieldsThree.forEach((fieldName, _index) => {
       if (
         data.players === "3" &&
-        charactersArray.some((value) => value === "")
+        charactersArrayThree.some((value) => value === "")
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -240,7 +318,10 @@ export const CreateGameSchema = z
       }
     });
 
-    onlyThreeCharacterInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Characters (4th Character Explicit Null)
+    // -------------------
+    onlyCharacterInputFieldsThree.forEach((fieldName, _index) => {
       if (data.players === "3" && data.characters_4th !== "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -250,19 +331,27 @@ export const CreateGameSchema = z
       }
     });
   })
+  // ------------------------------------------------------
+  // 2 Player Games
+  // ------------------------------------------------------
   .superRefine((data, ctx) => {
-    // 2 Player Games
-    // ---------------------------
-    // Players
-    // ---------------------------
-    const playersArray = [data.players_1st, data.players_2nd];
-    const playersSet = new Set(playersArray);
+    // ---------------------------------------
+    // Players 2P
+    // ---------------------------------------
+    const playersArrayTwo = [data.players_1st, data.players_2nd];
+    const playersSetTwo = new Set(playersArrayTwo);
 
-    const playersInputFields = ["players_1st", "players_2nd"];
-    const onlyTwoPlayerInputFields = ["players", "players_3rd", "players_4th"];
+    const playersInputFieldsTwo = ["players_1st", "players_2nd"];
+    const onlyPlayerInputFieldsTwo = ["players", "players_3rd", "players_4th"];
 
-    playersInputFields.forEach((fieldName, _index) => {
-      if (data.players === "2" && playersArray.length !== playersSet.size) {
+    // -------------------
+    // Players (Unique)
+    // -------------------
+    playersInputFieldsTwo.forEach((fieldName, _index) => {
+      if (
+        data.players === "2" &&
+        playersArrayTwo.length !== playersSetTwo.size
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [fieldName],
@@ -271,8 +360,14 @@ export const CreateGameSchema = z
       }
     });
 
-    playersInputFields.forEach((fieldName, _index) => {
-      if (data.players === "2" && playersArray.some((value) => value === "")) {
+    // -------------------
+    // Players (Not Null)
+    // -------------------
+    playersInputFieldsTwo.forEach((fieldName, _index) => {
+      if (
+        data.players === "2" &&
+        playersArrayTwo.some((value) => value === "")
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [fieldName],
@@ -281,7 +376,10 @@ export const CreateGameSchema = z
       }
     });
 
-    onlyTwoPlayerInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Players (4th and 3rd Player Explicit Null)
+    // -------------------
+    onlyPlayerInputFieldsTwo.forEach((fieldName, _index) => {
       if (
         data.players === "2" &&
         (data.players_3rd !== "" || data.players_4th !== "")
@@ -294,25 +392,28 @@ export const CreateGameSchema = z
       }
     });
 
-    // ---------------------------
-    // Characters
-    // ---------------------------
-    const charactersArray = [data.players_1st, data.players_2nd];
+    // ---------------------------------------
+    // Characters 2P
+    // ---------------------------------------
+    const charactersArrayTwo = [data.characters_1st, data.characters_2nd];
 
-    const charactersInputFields = ["characters_1st", "characters_2nd"];
+    const charactersInputFieldsTwo = ["characters_1st", "characters_2nd"];
 
-    const onlyTwoCharacterInputFields = [
+    const onlyCharacterInputFieldsTwo = [
       "players",
       "characters_3rd",
       "characters_4th",
     ];
 
-    const charactersSet = new Set(charactersArray);
+    const charactersSetTwo = new Set(charactersArrayTwo);
 
-    charactersInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Characters (Unique)
+    // -------------------
+    charactersInputFieldsTwo.forEach((fieldName, _index) => {
       if (
         data.players === "2" &&
-        charactersArray.length !== charactersSet.size
+        charactersArrayTwo.length !== charactersSetTwo.size
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -322,10 +423,13 @@ export const CreateGameSchema = z
       }
     });
 
-    charactersInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Characters (Not Null)
+    // -------------------
+    charactersInputFieldsTwo.forEach((fieldName, _index) => {
       if (
         data.players === "2" &&
-        charactersArray.some((value) => value === "")
+        charactersArrayTwo.some((value) => value === "")
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -335,7 +439,10 @@ export const CreateGameSchema = z
       }
     });
 
-    onlyTwoCharacterInputFields.forEach((fieldName, _index) => {
+    // -------------------
+    // Characters (4th and 3rd Character Explicit Null)
+    // -------------------
+    onlyCharacterInputFieldsTwo.forEach((fieldName, _index) => {
       if (
         data.players === "2" &&
         (data.characters_3rd !== "" || data.characters_4th !== "")
@@ -367,7 +474,15 @@ export const defaultValuesCreateGameSchema: TCreateGameSchema = {
 // --------------------------------------------------------
 // Update
 // --------------------------------------------------------
-export type TUpdateGameSchema = z.infer<typeof GameSchema>;
+
+// Combine server side calculated fields from general schema with..
+// ..superRefine validated fields?
+// TODO: this probably won't work, will need a new zod schema lol
+export type TUpdateGameSchema = z.infer<typeof CreateGameSchema> &
+  Pick<
+    z.infer<typeof GameSchema>,
+    "id" | "timestamp" | "new_session" | "suid" | "season"
+  >;
 
 export const defaultValuesUpdateGameSchema: TUpdateGameSchema = {
   id: 0,
