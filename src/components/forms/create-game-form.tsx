@@ -52,6 +52,7 @@ import { fetchCharacters, fetchMaps } from "@/app/lib/data";
 export default function CreateGameForm() {
   const form = useForm<TCreateGameSchema>({
     resolver: zodResolver(CreateGameSchema),
+    mode: "onBlur",
     defaultValues: defaultValuesCreateGameSchema,
   });
 
