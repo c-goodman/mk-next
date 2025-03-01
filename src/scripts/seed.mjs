@@ -23,83 +23,10 @@ const parseCSV = async (filePath) => {
 // ---------------------------------
 // Overwrite
 // ---------------------------------
-
-// CREATE TABLE IF NOT EXISTS
-// async function seed(client) {
-//   const createTable = await client.sql`
-//     DROP TABLE IF EXISTS mk_form_data;
-//     CREATE TABLE IF NOT EXISTS mk_form_data (
-//       id SERIAL PRIMARY KEY
-//       ,TIMESTAMP TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
-//       ,NEW_SESSION VARCHAR(255) NOT NULL
-//       ,SUID SERIAL NOT NULL
-//       ,MAP VARCHAR(255) NOT NULL
-//       ,PLAYERS SMALLINT NOT NULL
-//       ,PLAYERS_1ST VARCHAR(255) NOT NULL
-//       ,PLAYERS_2ND VARCHAR(255) NOT NULL
-//       ,PLAYERS_3RD VARCHAR(255)
-//       ,PLAYERS_4TH VARCHAR(255)
-//       ,CHARACTERS_1ST VARCHAR(255) NOT NULL
-//       ,CHARACTERS_2ND VARCHAR(255) NOT NULL
-//       ,CHARACTERS_3RD VARCHAR(255)
-//       ,CHARACTERS_4TH VARCHAR(255)
-//       ,SEASON SMALLINT NOT NULL
-//     );
-//   `;
-
-//   const seedData = await parseCSV("./form_data_migration/form_data_valid.csv");
-
-//   // Insert into database
-//   const promises = seedData.map((record) => {
-//     return client.sql`
-//   INSERT INTO mk_form_data (
-//     TIMESTAMP,
-//     NEW_SESSION,
-//     SUID,
-//     MAP,
-//     PLAYERS,
-//     PLAYERS_1ST,
-//     PLAYERS_2ND,
-//     PLAYERS_3RD,
-//     PLAYERS_4TH,
-//     CHARACTERS_1ST,
-//     CHARACTERS_2ND,
-//     CHARACTERS_3RD,
-//     CHARACTERS_4TH,
-//     SEASON
-//   ) VALUES (
-//     ${record["TIMESTAMP"]},
-//     ${record["NEW_SESSION"]},
-//     ${record["SUID"]},
-//     ${record["MAP"]},
-//     ${record["PLAYERS"]},
-//     ${record["PLAYERS_1ST"]},
-//     ${record["PLAYERS_2ND"]},
-//     ${record["PLAYERS_3RD"]},
-//     ${record["PLAYERS_4TH"]},
-//     ${record["CHARACTERS_1ST"]},
-//     ${record["CHARACTERS_2ND"]},
-//     ${record["CHARACTERS_3RD"]},
-//     ${record["CHARACTERS_4TH"]},
-//     ${record["SEASON"]}
-//   );
-//   `;
-//   });
-
-//   const results = await Promise.all(promises);
-//   console.log(`Seeded Records: ${results.length}`);
-
-//   return {
-//     createTable,
-//     seededRecords: results.length,
-//   };
-// }
-
-// ---------------------------------
-// Update
-// ---------------------------------
 async function seed(client) {
+  // CREATE TABLE IF NOT EXISTS
   const createTable = await client.sql`
+    DROP TABLE IF EXISTS mk_form_data;
     CREATE TABLE IF NOT EXISTS mk_form_data (
       id SERIAL PRIMARY KEY
       ,TIMESTAMP TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
@@ -116,12 +43,12 @@ async function seed(client) {
       ,CHARACTERS_3RD VARCHAR(255)
       ,CHARACTERS_4TH VARCHAR(255)
       ,SEASON SMALLINT NOT NULL
+      ,SUID_WINDOW_START TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
+      ,SUID_WINDOW_END TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
     );
   `;
 
-  const seedData = await parseCSV(
-    "./form_data_migration/form_data_valid_new_records.csv"
-  );
+  const seedData = await parseCSV("./form_data_migration/form_data_valid.csv");
 
   // Insert into database
   const promises = seedData.map((record) => {
@@ -140,7 +67,9 @@ async function seed(client) {
       CHARACTERS_2ND,
       CHARACTERS_3RD,
       CHARACTERS_4TH,
-      SEASON
+      SEASON,
+      SUID_WINDOW_START,
+      SUID_WINDOW_END
     ) VALUES (
       ${record["TIMESTAMP"]},
       ${record["NEW_SESSION"]},
@@ -155,7 +84,9 @@ async function seed(client) {
       ${record["CHARACTERS_2ND"]},
       ${record["CHARACTERS_3RD"]},
       ${record["CHARACTERS_4TH"]},
-      ${record["SEASON"]}
+      ${record["SEASON"]},
+      ${record["SUID_WINDOW_START"]},
+      ${record["SUID_WINDOW_END"]}
     );
     `;
   });
@@ -168,6 +99,86 @@ async function seed(client) {
     seededRecords: results.length,
   };
 }
+
+// ---------------------------------
+// Update
+// ---------------------------------
+// async function seed(client) {
+//   const createTable = await client.sql`
+//     CREATE TABLE IF NOT EXISTS mk_form_data (
+//       id SERIAL PRIMARY KEY
+//       ,TIMESTAMP TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
+//       ,NEW_SESSION VARCHAR(255) NOT NULL
+//       ,SUID SERIAL NOT NULL
+//       ,MAP VARCHAR(255) NOT NULL
+//       ,PLAYERS SMALLINT NOT NULL
+//       ,PLAYERS_1ST VARCHAR(255) NOT NULL
+//       ,PLAYERS_2ND VARCHAR(255) NOT NULL
+//       ,PLAYERS_3RD VARCHAR(255)
+//       ,PLAYERS_4TH VARCHAR(255)
+//       ,CHARACTERS_1ST VARCHAR(255) NOT NULL
+//       ,CHARACTERS_2ND VARCHAR(255) NOT NULL
+//       ,CHARACTERS_3RD VARCHAR(255)
+//       ,CHARACTERS_4TH VARCHAR(255)
+//       ,SEASON SMALLINT NOT NULL
+//       ,SUID_WINDOW_START TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
+//       ,SUID_WINDOW_END TIMESTAMP WITH TIME ZONE DEFAULT (timezone('utc', now()))
+//     );
+//   `;
+
+//   const seedData = await parseCSV(
+//     "./form_data_migration/form_data_valid_new_records.csv"
+//   );
+
+//   // Insert into database
+//   const promises = seedData.map((record) => {
+//     return client.sql`
+//     INSERT INTO mk_form_data (
+//       TIMESTAMP,
+//       NEW_SESSION,
+//       SUID,
+//       MAP,
+//       PLAYERS,
+//       PLAYERS_1ST,
+//       PLAYERS_2ND,
+//       PLAYERS_3RD,
+//       PLAYERS_4TH,
+//       CHARACTERS_1ST,
+//       CHARACTERS_2ND,
+//       CHARACTERS_3RD,
+//       CHARACTERS_4TH,
+//       SEASON,
+//       SUID_WINDOW_START,
+//       SUID_WINDOW_END
+//     ) VALUES (
+//       ${record["TIMESTAMP"]},
+//       ${record["NEW_SESSION"]},
+//       ${record["SUID"]},
+//       ${record["MAP"]},
+//       ${record["PLAYERS"]},
+//       ${record["PLAYERS_1ST"]},
+//       ${record["PLAYERS_2ND"]},
+//       ${record["PLAYERS_3RD"]},
+//       ${record["PLAYERS_4TH"]},
+//       ${record["CHARACTERS_1ST"]},
+//       ${record["CHARACTERS_2ND"]},
+//       ${record["CHARACTERS_3RD"]},
+//       ${record["CHARACTERS_4TH"]},
+//       ${record["SEASON"]},
+//       ${record["SUID_WINDOW_START"]},
+//       ${record["SUID_WINDOW_END"]}
+//     );
+//     `;
+//   });
+
+//   const results = await Promise.all(promises);
+//   console.log(`Seeded Records: ${results.length}`);
+
+//   return {
+//     createTable,
+//     seededRecords: results.length,
+//   };
+// }
 
 // ------------------------------------------------------------------
 // Maps
