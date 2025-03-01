@@ -301,6 +301,8 @@ export async function fetchFilteredGames(query: string, currentPage: number) {
         ,mk_form_data.characters_3rd
         ,mk_form_data.characters_4th
         ,mk_form_data.season
+        ,mk_form_data.suid_window_start
+        ,mk_form_data.suid_window_end
         ,mk_maps.image_url
       FROM mk_form_data
       JOIN mk_maps ON mk_form_data.map = mk_maps.map
@@ -419,6 +421,8 @@ export async function fetchMostRecentGame(): Promise<TGamesTable> {
         ,mk_form_data.characters_3rd
         ,mk_form_data.characters_4th
         ,mk_form_data.season 
+        ,mk_form_data.suid_window_start
+        ,mk_form_data.suid_window_end
       FROM mk_form_data
         ORDER BY mk_form_data.timestamp DESC
         LIMIT 1;
@@ -450,10 +454,83 @@ export async function fetchMostRecentSession(): Promise<TGamesTable[]> {
         ,mk_form_data.characters_3rd
         ,mk_form_data.characters_4th
         ,mk_form_data.season
+        ,mk_form_data.suid_window_start
+        ,mk_form_data.suid_window_end
       FROM mk_form_data
         WHERE mk_form_data.suid = (
             SELECT MAX(mk_form_data.suid) FROM mk_form_data
           )
+        ORDER BY mk_form_data.timestamp DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user.");
+  }
+}
+
+export async function fetchPenultimateSession(): Promise<TGamesTable[]> {
+  try {
+    const data = await sql<TGamesTable>`
+      SELECT 
+        mk_form_data.id
+        ,mk_form_data.timestamp
+        ,mk_form_data.new_session
+        ,mk_form_data.suid
+        ,mk_form_data.map
+        ,mk_form_data.players
+        ,mk_form_data.players_1st
+        ,mk_form_data.players_2nd
+        ,mk_form_data.players_3rd
+        ,mk_form_data.players_4th
+        ,mk_form_data.characters_1st
+        ,mk_form_data.characters_2nd
+        ,mk_form_data.characters_3rd
+        ,mk_form_data.characters_4th
+        ,mk_form_data.season
+        ,mk_form_data.suid_window_start
+        ,mk_form_data.suid_window_end
+      FROM mk_form_data
+        WHERE mk_form_data.suid = (
+            SELECT MAX(mk_form_data.suid) - 1 FROM mk_form_data
+          )
+        ORDER BY mk_form_data.timestamp DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch user.");
+  }
+}
+
+export async function fetchMostRecentNewSession(): Promise<TGamesTable[]> {
+  try {
+    const data = await sql<TGamesTable>`
+      SELECT 
+        mk_form_data.id
+        ,mk_form_data.timestamp
+        ,mk_form_data.new_session
+        ,mk_form_data.suid
+        ,mk_form_data.map
+        ,mk_form_data.players
+        ,mk_form_data.players_1st
+        ,mk_form_data.players_2nd
+        ,mk_form_data.players_3rd
+        ,mk_form_data.players_4th
+        ,mk_form_data.characters_1st
+        ,mk_form_data.characters_2nd
+        ,mk_form_data.characters_3rd
+        ,mk_form_data.characters_4th
+        ,mk_form_data.season
+        ,mk_form_data.suid_window_start
+        ,mk_form_data.suid_window_end
+      FROM mk_form_data
+        WHERE mk_form_data.suid = (
+            SELECT MAX(mk_form_data.suid) FROM mk_form_data
+          )
+        AND mk_form_data.new_session = 'YES'
         ORDER BY mk_form_data.timestamp DESC;
     `;
 
