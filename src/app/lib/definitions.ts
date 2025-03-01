@@ -117,6 +117,11 @@ export type TGamesTable = {
   image_url: string;
 };
 
+export type TGamesTableSessionWindows = TGamesTable & {
+  suid_window_start: Date;
+  suid_window_end: Date;
+};
+
 export type TMostRecentSeasonGamesCountInitial = {
   count: string;
   season: number;
