@@ -48,6 +48,29 @@ import {
 } from "@/components/ui/select";
 import { ExclamationCircleIcon } from "@heroicons/react/24/solid";
 import { fetchCharacters, fetchMaps } from "@/app/lib/data";
+// import {
+//   getServerSideDate,
+//   getServerSideNewSessionCutoffEnd,
+//   getServerSideNewSessionCutoffStart,
+// } from "@/types/GetServerSideConstants";
+
+// function getDateDelta(
+//   date1: Date,
+//   date2: Date
+// ): { days: number; hours: number; minutes: number; seconds: number } {
+//   const deltaMs = Math.abs(date2.getTime() - date1.getTime());
+//   const seconds = Math.floor(deltaMs / 1000);
+//   const minutes = Math.floor(seconds / 60);
+//   const hours = Math.floor(minutes / 60);
+//   const days = Math.floor(hours / 24);
+
+//   return {
+//     days,
+//     hours: hours % 24,
+//     minutes: minutes % 60,
+//     seconds: seconds % 60,
+//   };
+// }
 
 export default function CreateGameForm() {
   const form = useForm<TCreateGameSchema>({
@@ -55,6 +78,14 @@ export default function CreateGameForm() {
     mode: "onBlur",
     defaultValues: defaultValuesCreateGameSchema,
   });
+
+  // const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
+  // const [newSessionCutoffStart, setNewSessionCutoffStart] = useState(
+  //   () => new Date()
+  // );
+  // const [newSessionCutoffEnd, setNewSessionCutoffEnd] = useState(
+  //   () => new Date()
+  // );
 
   // Set initial states for character and map table fetch
   const [charactersData, setCharactersData] = useState([
@@ -105,6 +136,31 @@ export default function CreateGameForm() {
     setData();
   }, [setCharactersData, setMapsData]);
 
+  // useEffect(() => {
+  //   // https://stackoverflow.com/a/67547285
+  //   async function setDateData() {
+  //     const currentDateTimeInitial = await getServerSideDate();
+
+  //     // Set the date to 7 AM UTC
+  //     const newSessionCutoffStartInitial =
+  //       await getServerSideNewSessionCutoffStart();
+
+  //     // Set the end of the window to 24 hours later
+  //     const newSessionCutoffEndInitial =
+  //       await getServerSideNewSessionCutoffEnd();
+
+  //     setCurrentDateTime(currentDateTimeInitial);
+  //     setNewSessionCutoffStart(newSessionCutoffStartInitial);
+  //     setNewSessionCutoffEnd(newSessionCutoffEndInitial);
+  //   }
+
+  //   const intervalId = setInterval(() => {
+  //     setDateData();
+  //   }, 10000);
+
+  //   return () => clearInterval(intervalId);
+  // }, [setCurrentDateTime, setNewSessionCutoffStart, setNewSessionCutoffEnd]);
+
   // If currently selected game type value is set to a lower number..
   // ..set the value of potentially selected player or character values..
   // ..not related to the current game type to nullish values
@@ -133,6 +189,9 @@ export default function CreateGameForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit((values) => onSubmit(values))}>
         <div className="rounded-md bg-gray-50 p-4 md:p-6">
+          {/* <div className="mb-1">{`Current Date:  ${currentDateTime.toLocaleString()}`}</div>
+          <div className="mb-1">{`Cutoff Start:  ${newSessionCutoffStart.toLocaleString()}`}</div>
+          <div className="mb-6">{`Cutoff End:  ${newSessionCutoffEnd.toLocaleString()}`}</div> */}
           <div className="mb-4">
             <div className="flex flex-col md:flex-row items-start mb-4">
               <div className="flex flex-col mb-2 md:mr-2">
