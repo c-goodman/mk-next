@@ -9,9 +9,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
-  fetchMostRecentNewSession,
   fetchMostRecentSeasonGamesCount,
   fetchMostRecentSession,
+  // fetchPenultimateSession,
 } from "./data";
 import { TGamesTable, TMostRecentSeasonGamesCount } from "./definitions";
 import { GAMES_PER_SEASON } from "@/types/constants";
@@ -198,66 +198,154 @@ export async function createGame(
     characters_4th,
   } = validatedFields.data;
 
-  interface SessionItems {
-    new_session: string;
-    suid: number;
+  // Get the most recent session records
+  const mostRecentSession = await fetchMostRecentSession();
+  // Get the previous session records
+  // Basically mostRecentSession.suid - 1 in the sql query
+  // const penultimateSession = await fetchPenultimateSession();
+
+  type TCutoffWindow = { windowStart: Date; windowEnd: Date };
+
+  function handleCutoffWindow(currentGameTimestamp: Date): TCutoffWindow {
+    if (
+      currentGameTimestamp.getHours() >= 7 &&
+      currentGameTimestamp.getHours() <= 24
+    ) {
+      // Set the date to 7 AM UTC
+      // Create a copy to avoid modifying the original
+      const newSessionCutoffStart = new Date(currentGameTimestamp);
+      newSessionCutoffStart.setUTCHours(12, 0, 0, 0);
+      // newSessionCutoffStart.setUTCHours(7, 0, 0, 0);
+
+      // Set the end of the window to 24 hours later
+      const newSessionCutoffEnd = new Date(
+        // Add 24 hours in milliseconds
+        newSessionCutoffStart.getTime() + 24 * 60 * 60 * 1000
+      );
+
+      return {
+        windowStart: newSessionCutoffStart,
+        windowEnd: newSessionCutoffEnd,
+      };
+
+      // if (currentGameTimestamp.getHours() < 7)
+    } else {
+      // Create a copy to avoid modifying the original
+      const previousDayTimestamp = new Date(currentGameTimestamp);
+      // Subtract 1 day
+      previousDayTimestamp.setDate(previousDayTimestamp.getDate() - 1);
+
+      // Set the date to 7 AM UTC
+      const newSessionCutoffStart = previousDayTimestamp;
+      newSessionCutoffStart.setUTCHours(12, 0, 0, 0);
+      // newSessionCutoffStart.setUTCHours(7, 0, 0, 0);
+
+      // Set the end of the window to 24 hours later
+      const newSessionCutoffEnd = new Date(
+        // Add 24 hours in milliseconds
+        newSessionCutoffStart.getTime() + 24 * 60 * 60 * 1000
+      );
+
+      return {
+        windowStart: newSessionCutoffStart,
+        windowEnd: newSessionCutoffEnd,
+      };
+    }
   }
 
-  // TODO: test that this actually works lol
-  // Helper function to determine if a new Session UID should be created
-  // function setSessionItems(
-  //   currentGameTimestamp: Date,
-  //   newSessionCutoffStartTimestamp: Date,
-  //   newSessionCutoffEndTimestamp: Date,
-  //   previousSession: TGamesTable[]
-  // ): SessionItems {
-  //   if (
-  //     currentGameTimestamp >= newSessionCutoffStartTimestamp &&
-  //     currentGameTimestamp < newSessionCutoffEndTimestamp
-  //   ) {
-  //     if (previousSession[0].timestamp <= newSessionCutoffStartTimestamp) {
-  //       return { new_session: "YES", suid: previousSession[0].suid + 1 };
-  //     } else {
-  //       return { new_session: "NO", suid: previousSession[0].suid };
-  //     }
-  //   } else {
-  //     return { new_session: "NO", suid: previousSession[0].suid };
-  //   }
-  // }
+  type SessionItems = {
+    new_session: string;
+    suid: number;
+    suid_window_start: Date;
+    suid_window_end: Date;
+  };
 
   function setSessionItems(
     currentGameTimestamp: Date,
-    sessionIndexGameTimestamp: Date,
-    newSessionCutoffStartTimestamp: Date,
-    newSessionCutoffEndTimestamp: Date,
-    previousSession: TGamesTable[]
+    mostRecentSession: TGamesTable[]
+    // penultimateSession: TGamesTable[]
   ): SessionItems {
+    // Since the records are sorted `ORDER BY mk_form_data.timestamp DESC` in the sql query
+    // We can slice the following from the array
+    // First game of the new session
+    // Similar to `mostRecentSession.find((game) => game.new_session === "YES")` but do not..
+    // ..have to worry about the return type being undefined
+    // const mostRecentSessionFirstGame =
+    //   mostRecentSession[mostRecentSession.length - 1];
+    // Technically the Most Recent Game
+    const mostRecentSessionLastGame = mostRecentSession[0];
+
+    // Repeat for the previous session array
+    // const penultimateSessionFirstGame =
+    //   penultimateSession[penultimateSession.length - 1];
+    // const penultimateSessionLastGame = penultimateSession[0];
+
+    const { windowStart, windowEnd } = handleCutoffWindow(currentGameTimestamp);
+
     if (
-      // The current date must be within the session window
-      currentGameTimestamp >= newSessionCutoffStartTimestamp &&
-      currentGameTimestamp < newSessionCutoffEndTimestamp
+      windowStart === mostRecentSessionLastGame.suid_window_start &&
+      windowEnd === mostRecentSessionLastGame.suid_window_end
     ) {
-      if (
-        // previousSession[0].timestamp <= newSessionCutoffStartTimestamp &&
-
-        // The previous game
-        // previousSession[0].timestamp > sessionIndexGameTimestamp &&
-
-        // If the first game of the most recent session takes place before the new session
-        sessionIndexGameTimestamp < newSessionCutoffStartTimestamp
-      ) {
-        return { new_session: "YES", suid: previousSession[0].suid + 1 };
+      if (mostRecentSessionLastGame.new_session === "YES") {
+        return {
+          suid: mostRecentSessionLastGame.suid,
+          new_session: "NO",
+          suid_window_start: mostRecentSessionLastGame.suid_window_start,
+          suid_window_end: mostRecentSessionLastGame.suid_window_end,
+        };
+        // Tautology?
       } else {
-        return { new_session: "NO", suid: previousSession[0].suid };
+        return {
+          suid: mostRecentSessionLastGame.suid,
+          new_session: "NO",
+          suid_window_start: mostRecentSessionLastGame.suid_window_start,
+          suid_window_end: mostRecentSessionLastGame.suid_window_end,
+        };
       }
     } else {
-      if (sessionIndexGameTimestamp < newSessionCutoffStartTimestamp) {
-        return { new_session: "YES", suid: previousSession[0].suid + 1 };
+      if (
+        currentGameTimestamp >= windowStart &&
+        currentGameTimestamp < windowEnd
+      ) {
+        if (mostRecentSessionLastGame.timestamp < windowStart) {
+          return {
+            suid: mostRecentSessionLastGame.suid + 1,
+            new_session: "YES",
+            suid_window_start: windowStart,
+            suid_window_end: windowEnd,
+          };
+        } else {
+          return {
+            suid: mostRecentSessionLastGame.suid,
+            new_session: "NO",
+            suid_window_start: windowStart,
+            suid_window_end: windowEnd,
+          };
+        }
+      } else {
+        // Should not be reachable but needed for fully defined return type
+        return {
+          suid: mostRecentSessionLastGame.suid,
+          new_session: "NO",
+          suid_window_start: windowStart,
+          suid_window_end: windowEnd,
+        };
       }
-
-      return { new_session: "NO", suid: previousSession[0].suid };
     }
   }
+
+  // // Get the current timestamp
+  // const sessionItemsTimestamp = new Date();
+
+  // Get the current game timestamp
+  const timestamp = new Date();
+
+  const { suid, new_session, suid_window_start, suid_window_end } =
+    setSessionItems(
+      timestamp,
+      mostRecentSession
+      // penultimateSession
+    );
 
   // Helper function to determine if a new Season UID should be created
   function setSeasonId(
@@ -270,44 +358,7 @@ export async function createGame(
     }
   }
 
-  // Get the most recent session and season game counts data
-  const mostRecentSession = await fetchMostRecentSession();
-  const mostRecentSessionTimestamp = mostRecentSession[0].timestamp;
-
   const mostRecentSeasonGameCounts = await fetchMostRecentSeasonGamesCount();
-
-  // Get the most recent session's first game of the day/session time period
-  const mostRecentNewSession = await fetchMostRecentNewSession();
-  const mostRecentNewSessionTimestamp = mostRecentNewSession[0].timestamp;
-
-  // Set the date to 7 AM UTC
-  const newSessionCutoffStart = mostRecentNewSessionTimestamp;
-  // newSessionCutoffStart.setUTCHours(12, 0, 0, 0);
-  newSessionCutoffStart.setUTCHours(7, 0, 0, 0);
-
-  // Set the end of the window to 24 hours later
-  const newSessionCutoffEnd = new Date(
-    // Add 24 hours in milliseconds
-    newSessionCutoffStart.getTime() + 24 * 60 * 60 * 1000
-  );
-
-  // Set server controlled values
-  const timestamp = new Date();
-
-  const new_session = setSessionItems(
-    timestamp,
-    mostRecentNewSessionTimestamp,
-    newSessionCutoffStart,
-    newSessionCutoffEnd,
-    mostRecentSession
-  ).new_session;
-  const suid = setSessionItems(
-    timestamp,
-    mostRecentNewSessionTimestamp,
-    newSessionCutoffStart,
-    newSessionCutoffEnd,
-    mostRecentSession
-  ).suid;
 
   const season = setSeasonId(mostRecentSeasonGameCounts);
 
@@ -328,7 +379,9 @@ export async function createGame(
               characters_2nd,
               characters_3rd,
               characters_4th,
-              season
+              season,
+              suid_window_start,
+              suid_window_end
             )
             VALUES (
               ${timestamp.toISOString()},
@@ -344,7 +397,9 @@ export async function createGame(
               ${characters_2nd},
               ${characters_3rd},
               ${characters_4th},
-              ${season}
+              ${season},
+              ${suid_window_start.toISOString()},
+              ${suid_window_end.toISOString()}
             )
             `;
   } catch (error) {
