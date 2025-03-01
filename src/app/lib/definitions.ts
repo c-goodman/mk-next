@@ -115,9 +115,6 @@ export type TGamesTable = {
   characters_4th: string;
   season: number;
   image_url: string;
-};
-
-export type TGamesTableSessionWindows = TGamesTable & {
   suid_window_start: Date;
   suid_window_end: Date;
 };

@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
+  fetchMostRecentNewSession,
   fetchMostRecentSeasonGamesCount,
   fetchMostRecentSession,
 } from "./data";
@@ -204,22 +205,56 @@ export async function createGame(
 
   // TODO: test that this actually works lol
   // Helper function to determine if a new Session UID should be created
+  // function setSessionItems(
+  //   currentGameTimestamp: Date,
+  //   newSessionCutoffStartTimestamp: Date,
+  //   newSessionCutoffEndTimestamp: Date,
+  //   previousSession: TGamesTable[]
+  // ): SessionItems {
+  //   if (
+  //     currentGameTimestamp >= newSessionCutoffStartTimestamp &&
+  //     currentGameTimestamp < newSessionCutoffEndTimestamp
+  //   ) {
+  //     if (previousSession[0].timestamp <= newSessionCutoffStartTimestamp) {
+  //       return { new_session: "YES", suid: previousSession[0].suid + 1 };
+  //     } else {
+  //       return { new_session: "NO", suid: previousSession[0].suid };
+  //     }
+  //   } else {
+  //     return { new_session: "NO", suid: previousSession[0].suid };
+  //   }
+  // }
+
   function setSessionItems(
     currentGameTimestamp: Date,
+    sessionIndexGameTimestamp: Date,
     newSessionCutoffStartTimestamp: Date,
     newSessionCutoffEndTimestamp: Date,
     previousSession: TGamesTable[]
   ): SessionItems {
     if (
+      // The current date must be within the session window
       currentGameTimestamp >= newSessionCutoffStartTimestamp &&
       currentGameTimestamp < newSessionCutoffEndTimestamp
     ) {
-      if (previousSession[0].timestamp <= newSessionCutoffStartTimestamp) {
+      if (
+        // previousSession[0].timestamp <= newSessionCutoffStartTimestamp &&
+
+        // The previous game
+        // previousSession[0].timestamp > sessionIndexGameTimestamp &&
+
+        // If the first game of the most recent session takes place before the new session
+        sessionIndexGameTimestamp < newSessionCutoffStartTimestamp
+      ) {
         return { new_session: "YES", suid: previousSession[0].suid + 1 };
       } else {
         return { new_session: "NO", suid: previousSession[0].suid };
       }
     } else {
+      if (sessionIndexGameTimestamp < newSessionCutoffStartTimestamp) {
+        return { new_session: "YES", suid: previousSession[0].suid + 1 };
+      }
+
       return { new_session: "NO", suid: previousSession[0].suid };
     }
   }
@@ -237,11 +272,18 @@ export async function createGame(
 
   // Get the most recent session and season game counts data
   const mostRecentSession = await fetchMostRecentSession();
+  const mostRecentSessionTimestamp = mostRecentSession[0].timestamp;
+
   const mostRecentSeasonGameCounts = await fetchMostRecentSeasonGamesCount();
 
+  // Get the most recent session's first game of the day/session time period
+  const mostRecentNewSession = await fetchMostRecentNewSession();
+  const mostRecentNewSessionTimestamp = mostRecentNewSession[0].timestamp;
+
   // Set the date to 7 AM UTC
-  const newSessionCutoffStart = new Date();
-  newSessionCutoffStart.setUTCHours(12, 0, 0, 0);
+  const newSessionCutoffStart = mostRecentNewSessionTimestamp;
+  // newSessionCutoffStart.setUTCHours(12, 0, 0, 0);
+  newSessionCutoffStart.setUTCHours(7, 0, 0, 0);
 
   // Set the end of the window to 24 hours later
   const newSessionCutoffEnd = new Date(
@@ -254,12 +296,14 @@ export async function createGame(
 
   const new_session = setSessionItems(
     timestamp,
+    mostRecentNewSessionTimestamp,
     newSessionCutoffStart,
     newSessionCutoffEnd,
     mostRecentSession
   ).new_session;
   const suid = setSessionItems(
     timestamp,
+    mostRecentNewSessionTimestamp,
     newSessionCutoffStart,
     newSessionCutoffEnd,
     mostRecentSession
