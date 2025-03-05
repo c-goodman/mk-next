@@ -1,5 +1,5 @@
 import LatestGamesTable from '@/components/ui/games/latest-games-table';
-import Pagination from '@/components/ui/invoices/pagination';
+import Pagination from '@/components/ui/utils/pagination';
 import Search from '@/components/ui/search';
 import { CreateGame } from '@/components/ui/games/buttons';
 import { fetchGamesPages } from '@/app/lib/data';
