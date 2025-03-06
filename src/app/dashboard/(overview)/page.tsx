@@ -1,13 +1,15 @@
-import CardWrapper from '@/components/ui/dashboard/cards';
-import RevenueChart from '@/components/ui/dashboard/revenue-chart';
-import LatestInvoices from '@/components/ui/dashboard/latest-invoices';
-import { lusitana } from '@/components/ui/fonts';
-import { Suspense } from 'react';
-import { RevenueChartSkeleton, LatestInvoicesSkeleton, CardsSkeleton } from '@/components/ui/skeletons';
+import CardWrapper from "@/components/ui/dashboard/cards";
+import RevenueChart from "@/components/ui/dashboard/revenue-chart";
+import { lusitana } from "@/components/ui/fonts";
+import { Suspense } from "react";
+import {
+  RevenueChartSkeleton,
+  LatestGamesSkeleton,
+  CardsSkeleton,
+} from "@/components/ui/skeletons";
+import LatestGames from "@/components/ui/dashboard/latest-games";
 
 export default async function Page() {
-
-
   return (
     <main>
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
@@ -22,8 +24,8 @@ export default async function Page() {
         <Suspense fallback={<RevenueChartSkeleton />}>
           <RevenueChart />
         </Suspense>
-        <Suspense fallback={<LatestInvoicesSkeleton />}>
-          <LatestInvoices />
+        <Suspense fallback={<LatestGamesSkeleton />}>
+          <LatestGames />
         </Suspense>
       </div>
     </main>
