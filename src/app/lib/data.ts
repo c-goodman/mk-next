@@ -4,10 +4,8 @@ import { formatCurrency } from "./utils";
 import { GAMES_PER_SEASON } from "../../types/constants";
 import { ITEMS_PER_PAGE } from "@/types/constants";
 import { sql } from "@vercel/postgres";
-
 import {
   CustomerField,
-  CustomersTableType,
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
@@ -48,41 +46,6 @@ export async function fetchLatestInvoices() {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch the latest invoices.");
-  }
-}
-
-export async function fetchCardData() {
-  try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
-    ]);
-
-    const numberOfInvoices = Number(data[0].rows[0].count ?? "0");
-    const numberOfCustomers = Number(data[1].rows[0].count ?? "0");
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? "0");
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? "0");
-
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
-  } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch card data.");
   }
 }
 
@@ -182,39 +145,6 @@ export async function fetchCustomers() {
   } catch (err) {
     console.error("Database Error:", err);
     throw new Error("Failed to fetch all customers.");
-  }
-}
-
-export async function fetchFilteredCustomers(query: string) {
-  try {
-    const data = await sql<CustomersTableType>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
-
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
-    console.error("Database Error:", err);
-    throw new Error("Failed to fetch customer table.");
   }
 }
 
@@ -559,6 +489,41 @@ export async function fetchMostRecentSeasonGamesCount(): Promise<TMostRecentSeas
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch user.");
+  }
+}
+
+export async function fetchLatestGames() {
+  try {
+    const data = await sql<TGamesTable>`
+      SELECT
+        mk_form_data.id
+        ,mk_form_data.timestamp
+        ,mk_form_data.new_session
+        ,mk_form_data.suid
+        ,mk_form_data.map
+        ,mk_form_data.players
+        ,mk_form_data.players_1st
+        ,mk_form_data.players_2nd
+        ,mk_form_data.players_3rd
+        ,mk_form_data.players_4th
+        ,mk_form_data.characters_1st
+        ,mk_form_data.characters_2nd
+        ,mk_form_data.characters_3rd
+        ,mk_form_data.characters_4th
+        ,mk_form_data.season
+        ,mk_form_data.suid_window_start
+        ,mk_form_data.suid_window_end
+        ,mk_maps.image_url
+      FROM mk_form_data
+      JOIN mk_maps ON mk_form_data.map = mk_maps.map
+        ORDER BY mk_form_data.timestamp DESC
+        LIMIT 5
+      `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch the latest games.");
   }
 }
 
