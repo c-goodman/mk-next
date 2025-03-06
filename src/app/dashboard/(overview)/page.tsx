@@ -1,4 +1,5 @@
 import CardWrapper from "@/components/ui/dashboard/cards";
+import LatestGames from "@/components/ui/dashboard/latest-games";
 import RevenueChart from "@/components/ui/dashboard/revenue-chart";
 import { lusitana } from "@/components/ui/fonts";
 import { Suspense } from "react";
@@ -7,7 +8,6 @@ import {
   LatestGamesSkeleton,
   CardsSkeleton,
 } from "@/components/ui/skeletons";
-import LatestGames from "@/components/ui/dashboard/latest-games";
 
 export default async function Page() {
   return (

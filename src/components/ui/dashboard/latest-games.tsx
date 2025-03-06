@@ -1,9 +1,8 @@
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Image from "next/image";
-import { lusitana } from "@/components/ui/fonts";
-// import { LatestInvoice } from '@/app/lib/definitions';
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { fetchCharacters, fetchLatestGames } from "@/app/lib/data";
+import { lusitana } from "@/components/ui/fonts";
 import { TGamesTable } from "@/app/lib/definitions";
 
 export default async function LatestGames() {
