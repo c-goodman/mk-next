@@ -527,6 +527,219 @@ export async function fetchLatestGames() {
   }
 }
 
+export type TSessionPlacementsRolling = {
+  id: number;
+  suid: number;
+  player_name: string;
+  running_total: number;
+};
+
+export async function fetchSessionPlacementsRollingAllGameTypesFirst(): Promise<
+  TSessionPlacementsRolling[]
+> {
+  try {
+    const data = await sql<TSessionPlacementsRolling>`
+      SELECT
+          mk_form_data.id,
+          mk_form_data.suid,
+          mk_form_data.players_1st AS player_name,
+          SUM(COUNT(mk_form_data.id)) OVER (
+              PARTITION BY mk_form_data.players_1st, mk_form_data.suid
+              ORDER BY mk_form_data.id
+          ) AS running_total
+      FROM
+          mk_form_data
+      WHERE
+          mk_form_data.players IN ('2', '3', '4')
+      GROUP BY
+          mk_form_data.players_1st,
+          mk_form_data.suid,
+          mk_form_data.id
+      ORDER BY
+          mk_form_data.id DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error(
+      "Failed to fetch SessionPlacementsRollingAllGameTypesFirst"
+    );
+  }
+}
+
+export async function fetchSessionPlacementsRollingTwoPlayerFirst(): Promise<
+  TSessionPlacementsRolling[]
+> {
+  try {
+    const data = await sql<TSessionPlacementsRolling>`
+      SELECT
+          mk_form_data.id,
+          mk_form_data.suid,
+          mk_form_data.players_1st AS player_name,
+          SUM(CASE WHEN mk_form_data.players = '2' THEN 1 ELSE 0 END) OVER (
+              PARTITION BY mk_form_data.players_1st, mk_form_data.suid, mk_form_data.players
+              ORDER BY mk_form_data.id
+          ) AS running_total
+          
+      FROM
+          mk_form_data
+      WHERE
+          mk_form_data.players = '2'
+      GROUP BY
+          mk_form_data.players_1st,
+          mk_form_data.suid,
+          mk_form_data.id
+      ORDER BY
+          mk_form_data.id DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch SessionPlacementsRollingTwoPlayerFirst");
+  }
+}
+
+export async function fetchSessionPlacementsRollingThreePlayerFirst(): Promise<
+  TSessionPlacementsRolling[]
+> {
+  try {
+    const data = await sql<TSessionPlacementsRolling>`
+      SELECT
+          mk_form_data.id,
+          mk_form_data.suid,
+          mk_form_data.players_1st AS player_name,
+          SUM(CASE WHEN mk_form_data.players = '3' THEN 1 ELSE 0 END) OVER (
+              PARTITION BY mk_form_data.players_1st, mk_form_data.suid, mk_form_data.players
+              ORDER BY mk_form_data.id
+          ) AS running_total
+          
+      FROM
+          mk_form_data
+      WHERE
+          mk_form_data.players = '3'
+      GROUP BY
+          mk_form_data.players_1st,
+          mk_form_data.suid,
+          mk_form_data.id
+      ORDER BY
+          mk_form_data.id DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch SessionPlacementsRollingThreePlayerFirst");
+  }
+}
+
+export async function fetchSessionPlacementsRollingFourPlayerFirst(): Promise<
+  TSessionPlacementsRolling[]
+> {
+  try {
+    const data = await sql<TSessionPlacementsRolling>`
+      SELECT
+          mk_form_data.id,
+          mk_form_data.suid,
+          mk_form_data.players_1st AS player_name,
+          SUM(CASE WHEN mk_form_data.players = '4' THEN 1 ELSE 0 END) OVER (
+              PARTITION BY mk_form_data.players_1st, mk_form_data.suid, mk_form_data.players
+              ORDER BY mk_form_data.id
+          ) AS running_total
+          
+      FROM
+          mk_form_data
+      WHERE
+          mk_form_data.players = '4'
+      GROUP BY
+          mk_form_data.players_1st,
+          mk_form_data.suid,
+          mk_form_data.id
+      ORDER BY
+          mk_form_data.id DESC;
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch SessionPlacementsRollingFourPlayerFirst");
+  }
+}
+
+// export async function fetchSessionPlacementsRolling(): Promise<
+//   TSessionPlacementsRolling[]
+// > {
+//   try {
+//     const first_place = await sql<TSessionPlacementsRolling>`
+//       SELECT
+//           mk_form_data.id,
+//           mk_form_data.suid,
+//           mk_form_data.players_1st AS players_1st,
+
+//           -- Running total for all game types combined
+//           SUM(COUNT(mk_form_data.id)) OVER (
+//               PARTITION BY mk_form_data.players_1st, mk_form_data.suid
+//               ORDER BY mk_form_data.id
+//           ) AS running_total_all,
+
+//           -- Running total for game type 2
+//           SUM(CASE WHEN mk_form_data.players = '2' THEN 1 ELSE 0 END) OVER (
+//               PARTITION BY mk_form_data.players_1st, mk_form_data.suid, mk_form_data.players
+//               ORDER BY mk_form_data.id
+//           ) AS running_total_2,
+
+//           -- Running total for game type 3
+//           SUM(CASE WHEN mk_form_data.players = '3' THEN 1 ELSE 0 END) OVER (
+//               PARTITION BY mk_form_data.players_1st, mk_form_data.suid, mk_form_data.players
+//               ORDER BY mk_form_data.id
+//           ) AS running_total_3,
+
+//           -- Running total for game type 4
+//           SUM(CASE WHEN mk_form_data.players = '4' THEN 1 ELSE 0 END) OVER (
+//               PARTITION BY mk_form_data.players_1st, mk_form_data.suid, mk_form_data.players
+//               ORDER BY mk_form_data.id
+//           ) AS running_total_4
+//       FROM
+//           mk_form_data
+//       WHERE
+//           mk_form_data.players IN ('2', '3', '4')  -- For game types 2, 3, and 4
+//       GROUP BY
+//           mk_form_data.players_1st,
+//           mk_form_data.suid,
+//           mk_form_data.id
+//       ORDER BY
+//           mk_form_data.id DESC;
+//     `;
+
+//     return first_place.rows;
+//   } catch (error) {
+//     console.error("Database Error:", error);
+//     throw new Error("Failed to fetch user.");
+//   }
+// }
+
+// export async function fetchSessionPlacements(
+//   suid: number
+// ): Promise<TSessionPlacements[]> {
+//   try {
+//     const first_place = await sql<TSessionPlacements>`
+//       SELECT
+//         MAX(mk_form_data.suid) AS suid
+//         ,mk_form_data.players_1st
+//         ,COUNT(mk_form_data.id) AS first_place_count
+//       FROM mk_form_data
+//         WHERE mk_form_data.suid = ${suid}
+//         GROUP BY mk_form_data.players_1st
+//     `;
+
+//     return first_place.rows;
+//   } catch (error) {
+//     console.error("Database Error:", error);
+//     throw new Error("Failed to fetch user.");
+//   }
+// }
+
 // --------------------------------------------------------
 // Characters
 // --------------------------------------------------------
