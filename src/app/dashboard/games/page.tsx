@@ -1,10 +1,10 @@
-import LatestGamesTable from '@/components/ui/games/latest-games-table';
-import Pagination from '@/components/ui/utils/pagination';
-import Search from '@/components/ui/search';
-import { CreateGame } from '@/components/ui/games/buttons';
-import { fetchGamesPages } from '@/app/lib/data';
-import { lusitana } from '@/components/ui/fonts';
-import { Suspense } from 'react';
+import GamesTable from "@/components/ui/games/games-table";
+import Pagination from "@/components/ui/utils/pagination";
+import Search from "@/components/ui/search";
+import { CreateGame } from "@/components/ui/games/buttons";
+import { fetchGamesPages } from "@/app/lib/data";
+import { lusitana } from "@/components/ui/fonts";
+import { Suspense } from "react";
 
 // import { InvoicesTableSkeleton } from "@/components/ui/skeletons";
 
@@ -32,7 +32,7 @@ export default async function Page(props: {
       </div>
       {/* <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}> */}
       <Suspense key={query + currentPage}>
-        <LatestGamesTable query={query} currentPage={currentPage} />
+        <GamesTable query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

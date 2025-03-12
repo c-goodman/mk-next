@@ -3,7 +3,7 @@ import Image from "next/image";
 import { formatUTCTimestampToLocalISOString } from "@/app/lib/utils";
 import { fetchCharacters, fetchFilteredGames } from "@/app/lib/data";
 
-export default async function LatestGamesTable({
+export default async function GamesTable({
   query,
   currentPage,
 }: {
