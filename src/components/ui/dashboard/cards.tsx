@@ -1,5 +1,5 @@
-import { fetchGamesCounts } from '@/app/lib/data';
-import { lusitana } from '@/components/ui/fonts';
+import { fetchGamesCounts } from "@/app/lib/data";
+import { lusitana } from "@/components/ui/fonts";
 import {
   ClockIcon,
   UserGroupIcon,
@@ -26,12 +26,12 @@ export default async function CardWrapper() {
   return (
     <>
       <Card
-        title={`Season ${currentSeason} Games`}
+        title={`S${currentSeason} Games`}
         value={currentSeasonNumberOfGames}
         type="current"
       />
       <Card
-        title={`Season ${currentSeason} Games Remaining`}
+        title={`S${currentSeason} Games Remaining`}
         value={currentSeasonNumberOfGamesRemaining}
         type="remaining"
       />
@@ -53,14 +53,14 @@ export function Card({
   const Icon = iconMap[type];
 
   return (
-    <div className="rounded-xl bg-gray-50 p-2 shadow-sm">
-      <div className="flex p-4">
+    <div className="h-fit rounded-xl bg-gray-50 p-1 shadow-sm">
+      <div className="flex h-fit p-2">
         {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
         <h3 className="ml-2 text-sm font-medium">{title}</h3>
       </div>
       <p
         className={`${lusitana.className}
-            truncate rounded-xl bg-white px-4 py-8 text-center text-2xl`}
+            h-fit truncate rounded-xl bg-white p-2 text-center text-2xl`}
       >
         {value}
       </p>

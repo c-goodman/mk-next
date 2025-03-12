@@ -5,7 +5,7 @@ import { signOut } from "@/auth";
 
 export default function SideNav() {
   return (
-    <div className="flex h-full w-full flex-col p-6 xl:px-2">
+    <div className="flex h-full w-full flex-col p-2 pb-0 xl:pb-2">
       <div className="mb-2">
         <MKLogo />
       </div>
