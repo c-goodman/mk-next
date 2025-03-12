@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import MKLogo from "@/components/ui/mk-logo";
+import MKLogo from "@/components/ui/dashboard/mk-logo";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 // import styles from '@/app/ui/home.module.css'
 import { lusitana } from "@/components/ui/fonts";

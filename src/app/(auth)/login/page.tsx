@@ -1,4 +1,4 @@
-import MKLogo from "@/components/ui/mk-logo";
+import MKLogo from "@/components/ui/dashboard/mk-logo";
 import LoginForm from "@/components/forms/login-form";
 import Link from "next/link";
 
