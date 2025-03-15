@@ -1,10 +1,10 @@
 import CardWrapper from "@/components/ui/dashboard/cards";
 import LatestGames from "@/components/ui/dashboard/latest-games";
-import RevenueChart from "@/components/ui/dashboard/revenue-chart";
+import RecentGamesChart from "@/components/ui/dashboard/recent-games-chart";
 import { lusitana } from "@/components/ui/fonts";
 import { Suspense } from "react";
 import {
-  RevenueChartSkeleton,
+  RecentGamesChartSkeleton,
   LatestGamesSkeleton,
   CardsSkeleton,
 } from "@/components/ui/skeletons";
@@ -21,8 +21,8 @@ export default async function Page() {
         </Suspense>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 xl:grid-cols-8">
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChart />
+        <Suspense fallback={<RecentGamesChartSkeleton />}>
+          <RecentGamesChart />
         </Suspense>
         <Suspense fallback={<LatestGamesSkeleton />}>
           <LatestGames />
