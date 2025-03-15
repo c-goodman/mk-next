@@ -1,3 +1,4 @@
+import { TRecentGamesChart } from "@/app/lib/definitions";
 import { useEffect, useRef } from "react";
 import {
   Chart,
@@ -10,7 +11,6 @@ import {
   TooltipItem,
   Tooltip,
 } from "chart.js";
-import { Revenue } from "@/app/lib/definitions";
 
 // Registering necessary chart.js components
 Chart.register(
@@ -23,11 +23,11 @@ Chart.register(
 );
 Chart.defaults.color = "#2196F3";
 
-interface RevenueData {
-  revenue: Revenue[];
+interface RecentGamesData {
+  games: TRecentGamesChart[];
 }
 
-function RevenueDataChart({ revenue }: RevenueData) {
+function RecentGamesBarChart({ games: games }: RecentGamesData) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null); // Ref to store the chart instance
 
@@ -38,19 +38,19 @@ function RevenueDataChart({ revenue }: RevenueData) {
     }
 
     // Only initialize the chart when there's valid data
-    if (!revenue || revenue.length === 0 || !canvasRef.current) {
+    if (!games || games.length === 0 || !canvasRef.current) {
       return;
     }
 
-    const labels = revenue.map((i) => i.month);
-    const money = revenue.map((i) => i.revenue);
+    const labels = games.map((i) => i.month);
+    const gamesCount = games.map((i) => i.total_games_played);
 
     const data = {
       labels: labels,
       datasets: [
         {
-          label: "Recent Revenue",
-          data: money,
+          label: "Recent Games",
+          data: gamesCount,
           borderWidth: 1,
           backgroundColor: "rgba(255, 99, 135, 0.8)", // Light red color for the bars
           borderColor: "rgba(255, 99, 132, 1)", // Darker red for the borders
@@ -76,8 +76,8 @@ function RevenueDataChart({ revenue }: RevenueData) {
             callbacks: {
               // Customizing the tooltip to show the total revenue
               label: (tooltipItem: TooltipItem<"bar">) => {
-                const revenueAmount = tooltipItem.raw as number; // This is the total revenue for the specific bar
-                return `Total Revenue: $${revenueAmount.toString()}`; // Format the value as needed
+                const gamesAmount = tooltipItem.raw as number; // This is the total revenue for the specific bar
+                return `Total Games: ${gamesAmount.toString()}`; // Format the value as needed
               },
             },
           },
@@ -97,14 +97,14 @@ function RevenueDataChart({ revenue }: RevenueData) {
         }
       };
     }
-  }, [revenue]); // Run effect when `revenue` changes
+  }, [games]); // Run effect when `revenue` changes
 
   // Return JSX - Show "No data available" if no revenue data
-  if (!revenue || revenue.length === 0) {
+  if (!games || games.length === 0) {
     return <p className="mt-4 text-gray-400">No data available.</p>;
   }
 
   return <canvas ref={canvasRef} width="100%" height="100%"></canvas>;
 }
 
-export default RevenueDataChart;
+export default RecentGamesBarChart;
