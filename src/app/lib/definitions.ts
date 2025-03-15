@@ -149,3 +149,18 @@ export type TMapsTable = {
   map: string;
   image_url: string;
 };
+
+// --------------------------------------------------------
+// Recent Games Chart
+// --------------------------------------------------------
+export type TRecentGamesChart = {
+  month: string;
+  total_games_played: number;
+  total_games_2_players: number;
+  total_games_3_players: number;
+  total_games_4_players: number;
+  avg_games_per_day: number;
+  avg_games_per_day_2_players: number;
+  avg_games_per_day_3_players: number;
+  avg_games_per_day_4_players: number;
+};
