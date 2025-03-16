@@ -153,7 +153,7 @@ export type TMapsTable = {
 // --------------------------------------------------------
 // Recent Games Chart
 // --------------------------------------------------------
-export type TRecentGamesChart = {
+export type TRecentGamesMetricsChart = {
   month: string;
   total_games_played: number;
   most_recent_day: number;

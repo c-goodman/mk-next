@@ -3,8 +3,8 @@
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { lusitana } from "@/components/ui/fonts";
 import { useEffect, useState } from "react";
-import { fetchRecentGamesAllPlayers } from "@/app/lib/data";
-import { TRecentGamesChart } from "@/app/lib/definitions";
+import { fetchRecentGamesMetricsAllPlayers } from "@/app/lib/data";
+import { TRecentGamesMetricsChart } from "@/app/lib/definitions";
 import RecentGamesBarChart from "../charts/RecentGamesChart";
 
 // This component is representational only.
@@ -17,13 +17,13 @@ export default function RecentGamesChart() {
   // Make component async, remove the props
 
   const [recentGamesAllPlayers, setRecentGamesAllPlayers] = useState<
-    TRecentGamesChart[]
+    TRecentGamesMetricsChart[]
   >([]);
 
   useEffect(() => {
     // Example of client-side fetching
     const fetchData = async () => {
-      const recentGamesAllPlayersInitial = await fetchRecentGamesAllPlayers(); // Fetch data inside the component
+      const recentGamesAllPlayersInitial = await fetchRecentGamesMetricsAllPlayers(); // Fetch data inside the component
       setRecentGamesAllPlayers(recentGamesAllPlayersInitial);
     };
 

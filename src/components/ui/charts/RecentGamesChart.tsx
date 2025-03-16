@@ -1,4 +1,4 @@
-import { TRecentGamesChart } from "@/app/lib/definitions";
+import { TRecentGamesMetricsChart } from "@/app/lib/definitions";
 import { useEffect, useRef } from "react";
 import {
   Chart,
@@ -24,7 +24,7 @@ Chart.register(
 Chart.defaults.color = "#2196F3";
 
 interface RecentGamesData {
-  games: TRecentGamesChart[];
+  games: TRecentGamesMetricsChart[];
 }
 
 function RecentGamesBarChart({ games: games }: RecentGamesData) {

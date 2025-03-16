@@ -15,7 +15,7 @@ import {
   TMapsTable,
   TMostRecentSeasonGamesCount,
   TMostRecentSeasonGamesCountInitial,
-  TRecentGamesChart,
+  TRecentGamesMetricsChart,
   TUserNames,
   TUsersTable,
 } from "./definitions";
@@ -211,9 +211,9 @@ export async function fetchUserNames(): Promise<string[]> {
 // --------------------------------------------------------
 // Games
 // --------------------------------------------------------
-export async function fetchRecentGamesAllPlayers() {
+export async function fetchRecentGamesMetricsAllPlayers() {
   try {
-    const data = await sql<TRecentGamesChart>`
+    const data = await sql<TRecentGamesMetricsChart>`
       WITH monthly_games AS (
           SELECT
               DATE_TRUNC('month', timestamp) AS month,
@@ -287,7 +287,7 @@ export async function fetchRecentGamesAllPlayers() {
 // TODO: yeah this
 export async function fetchRecentGamesMetricsPerPlayer(player: string) {
   try {
-    const data = await sql<TRecentGamesChart>`
+    const data = await sql<TRecentGamesMetricsChart>`
       WITH monthly_games AS (
             SELECT
                 DATE_TRUNC('month', timestamp) AS month,
