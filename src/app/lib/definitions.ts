@@ -156,11 +156,18 @@ export type TMapsTable = {
 export type TRecentGamesChart = {
   month: string;
   total_games_played: number;
+  most_recent_day: number;
+  days_with_data: number;
+  days_with_data_percentage: number;
   total_games_2_players: number;
   total_games_3_players: number;
   total_games_4_players: number;
   avg_games_per_day: number;
+  avg_games_per_day_with_data: number;
   avg_games_per_day_2_players: number;
+  avg_games_per_day_with_data_2_players: number;
   avg_games_per_day_3_players: number;
+  avg_games_per_day_with_data_3_players: number;
   avg_games_per_day_4_players: number;
+  avg_games_per_day_with_data_4_players: number;
 };
