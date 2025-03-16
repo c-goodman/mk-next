@@ -215,46 +215,213 @@ export async function fetchRecentGamesAllPlayers() {
   try {
     const data = await sql<TRecentGamesChart>`
       WITH monthly_games AS (
-        SELECT
-            DATE_TRUNC('month', timestamp) AS month,
-            COUNT(*) AS total_games_played,
-            COUNT(CASE WHEN players = '2' THEN 1 END) AS total_games_2_players,
-            COUNT(CASE WHEN players = '3' THEN 1 END) AS total_games_3_players,
-            COUNT(CASE WHEN players = '4' THEN 1 END) AS total_games_4_players,
-            COUNT(DISTINCT DATE(timestamp)) AS days_in_month
-        FROM
-            mk_form_data
-        WHERE
-            timestamp >= NOW() - INTERVAL '12 months'
-        GROUP BY
-            month
+          SELECT
+              DATE_TRUNC('month', timestamp) AS month,
+              MAX(EXTRACT(DAY FROM timestamp)) AS most_recent_day,
+              COUNT(DISTINCT DATE(timestamp)) AS days_with_data,
+              COUNT(*) AS total_games_played,
+              COUNT(CASE WHEN players = '2' THEN 1 END) AS total_games_2_players,
+              COUNT(CASE WHEN players = '3' THEN 1 END) AS total_games_3_players,
+              COUNT(CASE WHEN players = '4' THEN 1 END) AS total_games_4_players
+          FROM
+              mk_form_data
+          WHERE
+              timestamp >= NOW() - INTERVAL '12 months'
+          GROUP BY
+              month
+      ),
+      games_per_day AS (
+          SELECT
+              DATE_TRUNC('month', timestamp) AS month,
+              DATE(timestamp) AS day,
+              COUNT(*) AS daily_games,
+              COUNT(CASE WHEN players = '2' THEN 1 END) AS daily_games_2_players,
+              COUNT(CASE WHEN players = '3' THEN 1 END) AS daily_games_3_players,
+              COUNT(CASE WHEN players = '4' THEN 1 END) AS daily_games_4_players
+          FROM
+              mk_form_data
+          WHERE
+              timestamp >= NOW() - INTERVAL '12 months'
+          GROUP BY
+              month, day
+      )
+
+      SELECT
+          TO_CHAR(mg.month, 'Mon YYYY') AS month,
+          MAX(mg.total_games_played) AS total_games_played,
+          MAX(mg.most_recent_day) AS most_recent_day,
+          MAX(mg.days_with_data) AS days_with_data,
+          ((MAX(mg.days_with_data) / MAX(mg.most_recent_day)) * 100) AS days_with_data_percentage,
+          MAX(mg.total_games_2_players) AS total_games_2_players,
+          MAX(mg.total_games_3_players) AS total_games_3_players,
+          MAX(mg.total_games_4_players) AS total_games_4_players,
+          
+          /* Comment Here */
+          (MAX(mg.total_games_played) / MAX(mg.most_recent_day)) AS avg_games_per_day,
+          AVG(gpd.daily_games) AS avg_games_per_day_with_data,
+          
+          (MAX(mg.total_games_2_players) / MAX(mg.most_recent_day)) AS avg_games_per_day_2_players,
+          AVG(gpd.daily_games_2_players) AS avg_games_per_day_with_data_2_players,
+          
+          (MAX(mg.total_games_3_players) / MAX(mg.most_recent_day)) AS avg_games_per_day_3_players,
+          AVG(gpd.daily_games_3_players) AS avg_games_per_day_with_data_3_players,
+          
+          (MAX(mg.total_games_4_players) / MAX(mg.most_recent_day)) AS avg_games_per_day_4_players,
+          AVG(gpd.daily_games_4_players) AS avg_games_per_day_with_data_4_players
+      FROM
+          monthly_games AS mg
+      LEFT JOIN
+          games_per_day AS gpd ON mg.month = gpd.month
+      GROUP BY
+          mg.month
+      ORDER BY
+          mg.month ASC;
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch all games data.");
+  }
+}
+
+// TODO: yeah this
+export async function fetchRecentGamesMetricsPerPlayer(player: string) {
+  try {
+    const data = await sql<TRecentGamesChart>`
+      WITH monthly_games AS (
+            SELECT
+                DATE_TRUNC('month', timestamp) AS month,
+                MAX(EXTRACT(DAY FROM timestamp)) AS most_recent_day,
+                COUNT(DISTINCT DATE(timestamp)) AS days_with_data,
+                COUNT(*) AS total_games_played,
+                COUNT(CASE WHEN players = '2' THEN 1 END) AS total_games_2_players,
+                COUNT(CASE WHEN players = '3' THEN 1 END) AS total_games_3_players,
+                COUNT(CASE WHEN players = '4' THEN 1 END) AS total_games_4_players,
+                COUNT(CASE WHEN players_1st = ${player} THEN 1 END) AS total_wins,
+                COUNT(CASE WHEN players = '2' AND players_1st = ${player} THEN 1 END) AS total_wins_2_players,
+                COUNT(CASE WHEN players = '3' AND players_1st = ${player} THEN 1 END) AS total_wins_3_players,
+                COUNT(CASE WHEN players = '4' AND players_1st = ${player} THEN 1 END) AS total_wins_4_players,
+                COUNT(CASE WHEN players_2nd = ${player} THEN 1 END) AS total_seconds,
+                COUNT(CASE WHEN players = '2' AND players_2nd = ${player} THEN 1 END) AS total_seconds_2_players,
+                COUNT(CASE WHEN players = '3' AND players_2nd = ${player} THEN 1 END) AS total_seconds_3_players,
+                COUNT(CASE WHEN players = '4' AND players_2nd = ${player} THEN 1 END) AS total_seconds_4_players,
+                COUNT(CASE WHEN players_3rd = ${player} THEN 1 END) AS total_thirds,
+                COUNT(CASE WHEN players = '3' AND players_3rd = ${player} THEN 1 END) AS total_thirds_3_players,
+                COUNT(CASE WHEN players = '4' AND players_3rd = ${player} THEN 1 END) AS total_thirds_4_players,
+                COUNT(CASE WHEN players_4th = ${player} THEN 1 END) AS total_fourths
+            FROM
+                mk_form_data
+            WHERE
+                timestamp >= NOW() - INTERVAL '12 months'
+                AND (
+                      mk_form_data.players_1st = ${player}
+                      OR mk_form_data.players_2nd = ${player}
+                      OR mk_form_data.players_3rd = ${player}
+                      OR mk_form_data.players_4th = ${player}
+                    )
+            GROUP BY
+                month
         ),
         games_per_day AS (
             SELECT
                 DATE_TRUNC('month', timestamp) AS month,
                 DATE(timestamp) AS day,
                 COUNT(*) AS daily_games,
-                COUNT(CASE WHEN mk_form_data.players = '2' THEN 1 END) AS daily_games_2_players,
-                COUNT(CASE WHEN mk_form_data.players = '3' THEN 1 END) AS daily_games_3_players,
-                COUNT(CASE WHEN mk_form_data.players = '4' THEN 1 END) AS daily_games_4_players
+                COUNT(CASE WHEN players = '2' THEN 1 END) AS daily_games_2_players,
+                COUNT(CASE WHEN players = '3' THEN 1 END) AS daily_games_3_players,
+                COUNT(CASE WHEN players = '4' THEN 1 END) AS daily_games_4_players,
+                COUNT(CASE WHEN players_1st = ${player} THEN 1 END) AS daily_games_total_wins,
+                COUNT(CASE WHEN players_2nd = ${player} THEN 1 END) AS daily_games_total_seconds,
+                COUNT(CASE WHEN players_3rd = ${player} THEN 1 END) AS daily_games_total_thirds,
+                COUNT(CASE WHEN players_4th = ${player} THEN 1 END) AS daily_games_total_fourths,
+                COUNT(CASE WHEN players = '2' AND players_1st = ${player} THEN 1 END) AS daily_games_wins_2_players,
+                COUNT(CASE WHEN players = '3' AND players_1st = ${player} THEN 1 END) AS daily_games_wins_3_players,
+                COUNT(CASE WHEN players = '4' AND players_1st = ${player} THEN 1 END) AS daily_games_wins_4_players,
+                COUNT(CASE WHEN players = '2' AND players_2nd = ${player} THEN 1 END) AS daily_games_total_seconds_2_players,
+                COUNT(CASE WHEN players = '3' AND players_2nd = ${player} THEN 1 END) AS daily_games_total_seconds_3_players,
+                COUNT(CASE WHEN players = '4' AND players_2nd = ${player} THEN 1 END) AS daily_games_total_seconds_4_players,
+                COUNT(CASE WHEN players = '3' AND players_3rd = ${player} THEN 1 END) AS daily_games_total_thirds_3_players,
+                COUNT(CASE WHEN players = '4' AND players_3rd = ${player} THEN 1 END) AS daily_games_total_thirds_4_players,
+                COUNT(CASE WHEN players = '4' AND players_4th = ${player} THEN 1 END) AS daily_games_total_fourths_4_players
             FROM
                 mk_form_data
             WHERE
                 timestamp >= NOW() - INTERVAL '12 months'
-            GROUP BY 
+                AND (
+                      mk_form_data.players_1st = ${player}
+                      OR mk_form_data.players_2nd = ${player}
+                      OR mk_form_data.players_3rd = ${player}
+                      OR mk_form_data.players_4th = ${player}
+                    )
+            GROUP BY
                 month, day
         )
 
         SELECT
             TO_CHAR(mg.month, 'Mon YYYY') AS month,
+            MAX(mg.most_recent_day) AS most_recent_day,
+            MAX(mg.days_with_data) AS days_with_data,
+            ((MAX(mg.days_with_data) / MAX(mg.most_recent_day)) * 100) AS days_with_data_percentage,
+            
+            /* Any Game Type */
+            /* Total Games Played Metrics */
             MAX(mg.total_games_played) AS total_games_played,
+            (MAX(mg.total_games_played) / MAX(mg.most_recent_day)) AS avg_games_per_day,
+            AVG(gpd.daily_games) AS avg_games_per_day_with_data,
+            
+            /* Total Place Metrics (Any Game Type) */
+            MAX(mg.total_wins) AS total_wins,
+            (MAX(mg.total_wins) / MAX(mg.most_recent_day)) AS avg_wins_per_day,
+            AVG(gpd.daily_games_total_wins) AS avg_wins_per_day_with_data,
+            
+            /* Total Place Metrics (2 Player Games) */
+            MAX(mg.total_seconds) AS total_seconds,
+            (MAX(mg.total_seconds) / MAX(mg.most_recent_day)) AS avg_seconds_per_day,
+            AVG(gpd.daily_games_total_seconds) AS avg_seconds_per_day_with_data,
+            
+            /* Total Place Metrics (3 Player Games) */
+            MAX(mg.total_thirds) AS total_thirds,
+            (MAX(mg.total_thirds) / MAX(mg.most_recent_day)) AS avg_thirds_per_day,
+            AVG(gpd.daily_games_total_thirds) AS avg_thirds_per_day_with_data,
+            
+            /* Total Place Metrics (4 Player Games) */
+            MAX(mg.total_fourths) AS total_fourths,
+            (MAX(mg.total_fourths) / MAX(mg.most_recent_day)) AS avg_fourths_per_day,
+            AVG(gpd.daily_games_total_fourths) AS avg_fourths_per_day_with_data,
+            
+            /* 2 Player Games */
+            /* Total Games Played Metrics */
             MAX(mg.total_games_2_players) AS total_games_2_players,
+            (MAX(mg.total_games_2_players) / MAX(mg.most_recent_day)) AS avg_games_per_day_2_players,
+            AVG(gpd.daily_games_2_players) AS avg_games_per_day_with_data_2_players,
+            /* Total Wins Metrics */
+            MAX(mg.total_wins_2_players) AS total_wins_2_players,
+            (MAX(mg.total_wins_2_players) / MAX(mg.most_recent_day)) AS avg_wins_per_day_with_data_2_players,
+            AVG(gpd.daily_games_wins_2_players) AS avg_wins_per_day_with_data_2_players,
+            /* Total Second Place Metrics */
+            
+            /* 3 Player Games */
+            /* Total Games Played Metrics */
             MAX(mg.total_games_3_players) AS total_games_3_players,
+            (MAX(mg.total_games_3_players) / MAX(mg.most_recent_day)) AS avg_games_per_day_3_players,
+            AVG(gpd.daily_games_3_players) AS avg_games_per_day_with_data_3_players,
+            /* Total Wins Metrics */
+            MAX(mg.total_wins_3_players) AS total_wins_3_players,
+            (MAX(mg.total_wins_3_players) / MAX(mg.most_recent_day)) AS avg_wins_per_day_3_players,
+            AVG(gpd.daily_games_wins_3_players) AS avg_wins_per_day_with_data_3_players,
+            /* Total Second Place Metrics */
+            
+            /* 4 Player Games */
+            /* Total Games Played Metrics */
             MAX(mg.total_games_4_players) AS total_games_4_players,
-            AVG(gpd.daily_games) AS avg_games_per_day,
-            AVG(gpd.daily_games_2_players) AS avg_games_per_day_2_players,
-            AVG(gpd.daily_games_3_players) AS avg_games_per_day_3_players,
-            AVG(gpd.daily_games_4_players) AS avg_games_per_day_4_players
+            (MAX(mg.total_games_4_players) / MAX(mg.most_recent_day)) AS avg_games_per_day_4_players,
+            AVG(gpd.daily_games_4_players) AS avg_games_per_day_with_data_4_players,
+            /* Total Wins Metrics */
+            MAX(mg.total_wins_4_players) AS total_wins_4_players,
+            (MAX(mg.total_wins_4_players) / MAX(mg.most_recent_day)) AS avg_wins_per_day_4_players,
+            AVG(gpd.daily_games_wins_4_players) AS avg_wins_per_day_with_data_4_players
+            /* Total Second Place Metrics */
+            
         FROM
             monthly_games AS mg
         LEFT JOIN
@@ -270,106 +437,6 @@ export async function fetchRecentGamesAllPlayers() {
     throw new Error("Failed to fetch all games data.");
   }
 }
-
-// TODO: yeah this
-// export async function fetchRecentGamesPerPlayer() {
-//   try {
-//     const data = await sql<TRecentGamesChart>`
-//       WITH monthly_games AS (
-//         SELECT
-//             DATE_TRUNC('month', timestamp) AS month,
-//             COUNT(*) AS total_games_played,
-//             COUNT(CASE WHEN players = '2' THEN 1 END) AS total_games_2_players,
-//             COUNT(CASE WHEN players = '3' THEN 1 END) AS total_games_3_players,
-//             COUNT(CASE WHEN players = '4' THEN 1 END) AS total_games_4_players,
-//             COUNT(CASE WHEN players_1st = 'Cooper' THEN 1 END) AS total_wins,
-//             COUNT(CASE WHEN players = '2' AND players_1st = 'Cooper' THEN 1 END) AS total_wins_2_players,
-//             COUNT(CASE WHEN players = '3' AND players_1st = 'Cooper' THEN 1 END) AS total_wins_3_players,
-//             COUNT(CASE WHEN players = '4' AND players_1st = 'Cooper' THEN 1 END) AS total_wins_4_players,
-//             COUNT(CASE WHEN players_2nd = 'Cooper' THEN 1 END) AS total_seconds,
-//             COUNT(CASE WHEN players = '2' AND players_2nd = 'Cooper' THEN 1 END) AS total_seconds_2_players,
-//             COUNT(CASE WHEN players = '3' AND players_2nd = 'Cooper' THEN 1 END) AS total_seconds_3_players,
-//             COUNT(CASE WHEN players = '4' AND players_2nd = 'Cooper' THEN 1 END) AS total_seconds_4_players,
-//             COUNT(DISTINCT DATE(timestamp)) AS days_in_month
-//         FROM
-//             mk_form_data
-//         WHERE
-//             timestamp >= NOW() - INTERVAL '12 months'
-//             AND (
-//               mk_form_data.players_1st = 'Cooper'
-//               OR mk_form_data.players_2nd = 'Cooper'
-//               OR mk_form_data.players_3rd = 'Cooper'
-//               OR mk_form_data.players_4th = 'Cooper'
-//             )
-//         GROUP BY
-//             month
-//         ),
-//         games_per_day AS (
-//             SELECT
-//                 DATE_TRUNC('month', timestamp) AS month,
-//                 DATE(timestamp) AS day,
-//                 COUNT(*) AS daily_games,
-//                 COUNT(CASE WHEN players = '2' THEN 1 END) AS daily_games_2_players,
-//                 COUNT(CASE WHEN players = '3' THEN 1 END) AS daily_games_3_players,
-//                 COUNT(CASE WHEN players = '4' THEN 1 END) AS daily_games_4_players,
-//                 COUNT(CASE WHEN players_1st = 'Cooper' THEN 1 END) AS daily_games_total_wins,
-//                 COUNT(CASE WHEN players = '2' AND players_1st = 'Cooper' THEN 1 END) AS daily_games_wins_2_players,
-//                 COUNT(CASE WHEN players = '3' AND players_1st = 'Cooper' THEN 1 END) AS daily_games_wins_3_players,
-//                 COUNT(CASE WHEN players = '4' AND players_1st = 'Cooper' THEN 1 END) AS daily_games_wins_4_players,
-//                 COUNT(CASE WHEN players = '2' AND players_2nd = 'Cooper' THEN 1 END) AS daily_games_total_seconds,
-//                 COUNT(CASE WHEN players = '3' AND players_2nd = 'Cooper' THEN 1 END) AS daily_games_total_seconds_3_players,
-//                 COUNT(CASE WHEN players = '4' AND players_2nd = 'Cooper' THEN 1 END) AS daily_games_total_seconds_4_players
-//             FROM
-//                 mk_form_data
-//             WHERE
-//                 timestamp >= NOW() - INTERVAL '12 months'
-//                 AND (
-//                   mk_form_data.players_1st = 'Cooper'
-//                   OR mk_form_data.players_2nd = 'Cooper'
-//                   OR mk_form_data.players_3rd = 'Cooper'
-//                   OR mk_form_data.players_4th = 'Cooper'
-//                 )
-//             GROUP BY
-//                 month, day
-//         )
-
-//         SELECT
-//             TO_CHAR(mg.month, 'Mon YYYY') AS month,
-//             MAX(mg.total_games_played) AS total_games_played,
-//             MAX(mg.total_games_2_players) AS total_games_2_players,
-//             MAX(mg.total_games_3_players) AS total_games_3_players,
-//             MAX(mg.total_games_4_players) AS total_games_4_players,
-//             AVG(gpd.daily_games) AS avg_games_per_day,
-//             AVG(gpd.daily_games_2_players) AS avg_games_per_day_2_players,
-//             AVG(gpd.daily_games_3_players) AS avg_games_per_day_3_players,
-//             AVG(gpd.daily_games_4_players) AS avg_games_per_day_4_players,
-//             MAX(mg.total_wins) AS total_wins,
-//             MAX(mg.total_wins_2_players) AS total_wins_2_players,
-//             MAX(mg.total_wins_3_players) AS total_wins_3_players,
-//             MAX(mg.total_wins_4_players) AS total_wins_4_players,
-//             AVG(gpd.daily_games_total_wins) AS avg_wins_per_day,
-//             AVG(gpd.daily_games_wins_2_players) AS avg_wins_per_day_2_players,
-//             AVG(gpd.daily_games_wins_3_players) AS avg_wins_per_day_3_players,
-//             AVG(gpd.daily_games_wins_4_players) AS avg_wins_per_day_4_players,
-//             MAX(mg.total_seconds) AS total_seconds,
-//             MAX(mg.total_seconds_2_players) AS total_seconds_2_players,
-//             MAX(mg.total_seconds_3_players) AS total_seconds_3_players,
-//             MAX(mg.total_seconds_4_players) AS total_seconds_4_players
-//         FROM
-//             monthly_games AS mg
-//         LEFT JOIN
-//             games_per_day AS gpd ON mg.month = gpd.month
-//         GROUP BY
-//             mg.month
-//         ORDER BY
-//             mg.month DESC;
-//     `;
-//     return data.rows;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch all games data.");
-//   }
-// }
 
 export async function fetchFilteredGames(query: string, currentPage: number) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
