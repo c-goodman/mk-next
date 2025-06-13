@@ -7,13 +7,8 @@ import {
   fetchPlayers,
   fetchRecentGamesMetricsAllPlayers,
   fetchRecentGamesMetricsPerPlayer,
-  fetchUserNames,
 } from "@/app/lib/data";
-import {
-  TPlayerNames,
-  TRecentGamesMetricsChart,
-  TUserNames,
-} from "@/app/lib/definitions";
+import { TPlayerNames, TRecentGamesMetricsChart } from "@/app/lib/definitions";
 import RecentGamesBarChart from "../charts/RecentGamesChart";
 import {
   Select,
