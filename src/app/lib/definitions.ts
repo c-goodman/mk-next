@@ -132,6 +132,14 @@ export type TMostRecentSeasonGamesCount = {
 // --------------------------------------------------------
 // Characters
 // --------------------------------------------------------
+export type TPlayerNames = {
+  player_name: string;
+  count: number;
+};
+
+// --------------------------------------------------------
+// Characters
+// --------------------------------------------------------
 export type TCharactersTable = {
   id: number;
   character: string;
