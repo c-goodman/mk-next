@@ -25,9 +25,13 @@ Chart.defaults.color = "#2196F3";
 
 interface RecentGamesData {
   games: TRecentGamesMetricsChart[];
+  metric: keyof Omit<TRecentGamesMetricsChart, "month">;
 }
 
-function RecentGamesBarChart({ games: games }: RecentGamesData) {
+function RecentGamesBarChart({
+  games: games,
+  metric: metric,
+}: RecentGamesData) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null); // Ref to store the chart instance
 
@@ -43,7 +47,7 @@ function RecentGamesBarChart({ games: games }: RecentGamesData) {
     }
 
     const labels = games.map((i) => i.month);
-    const gamesCount = games.map((i) => i.total_games_played);
+    const gamesCount = games.map((i) => i[metric]);
 
     const data = {
       labels: labels,
@@ -97,7 +101,7 @@ function RecentGamesBarChart({ games: games }: RecentGamesData) {
         }
       };
     }
-  }, [games]); // Run effect when `revenue` changes
+  }, [games, metric]); // Run effect when `revenue` changes
 
   // Return JSX - Show "No data available" if no revenue data
   if (!games || games.length === 0) {
