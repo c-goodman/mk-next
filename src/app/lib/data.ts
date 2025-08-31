@@ -19,6 +19,7 @@ import {
   TRecentGamesMetricsChart,
   TUserNames,
   TUsersTable,
+  TEloSeasonTable,
 } from "./definitions";
 
 export async function fetchRevenue() {
@@ -828,7 +829,7 @@ export async function fetchMostRecentSession(): Promise<TGamesTable[]> {
     return data.rows;
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to fetch user.");
+    throw new Error("Failed to fetch most recent session.");
   }
 }
 
@@ -1248,3 +1249,33 @@ export async function fetchMaps() {
     throw new Error("Failed to fetch maps.");
   }
 }
+
+// --------------------------------------------------------
+// Elo
+// --------------------------------------------------------
+export async function fetchEloPerSeason(season: number) {
+  try {
+    const elo = await sql<TEloSeasonTable>`
+      SELECT
+        mk_elo_per_season.id
+        ,mk_elo_per_season.player_id
+        ,mk_elo_per_season.date
+        ,mk_elo_per_season.rating
+        ,mk_elo_per_season.season
+        ,mk_elo_per_season.players
+      FROM mk_elo_per_season
+        WHERE mk_elo_per_season.season = '19'
+    `;
+
+    if (!elo) return;
+
+    return elo.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch per season elo.");
+  }
+}
+
+// --------------------------------------------------------
+// Openskill
+// --------------------------------------------------------

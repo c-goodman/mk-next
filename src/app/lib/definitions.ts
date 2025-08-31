@@ -130,6 +130,48 @@ export type TMostRecentSeasonGamesCount = {
 };
 
 // --------------------------------------------------------
+// Elo
+// --------------------------------------------------------
+export type TEloSeasonTable = {
+  id: number;
+  player_id: string;
+  date: Date;
+  rating: number;
+  season: number;
+  players: number;
+};
+
+export type TEloMapsTable = {
+  id: number;
+  player_id: string;
+  date: Date;
+  rating: number;
+  map: string;
+  players: number;
+};
+
+// --------------------------------------------------------
+// Openskill
+// --------------------------------------------------------
+export type TSkillTable = {
+  id: number;
+  timestamp: Date;
+  game_id: number;
+  suid: number;
+  season: number;
+  player: string;
+  place: number;
+  character: string;
+  map: string;
+  mu: number;
+  sigma: number;
+  ordinal: number;
+};
+
+// Define the shape of skill history entries (excluding the DB auto-generated ID)
+export type TSkillTableEntry = Omit<TSkillTable, "id">;
+
+// --------------------------------------------------------
 // Characters
 // --------------------------------------------------------
 export type TPlayerNames = {
