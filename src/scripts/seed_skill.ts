@@ -9,47 +9,39 @@ type TSeedTableProps = {
   game_type: "2" | "3" | "4";
 };
 
-async function seed_skill_all_time({
+async function seed_skill_all_time_four_player({
   client,
   if_exists,
   game_type,
 }: TSeedTableProps) {
   const processor = createSkillProcessor();
 
-  const createTable =
-    if_exists === "replace"
-      ? await client.sql`
+  if (if_exists === "replace") {
+    await client.sql`
     DROP TABLE IF EXISTS mk_skill_all_time_four_player;
-    CREATE TABLE IF NOT EXISTS mk_skill_all_time_four_player (
-      id SERIAL PRIMARY KEY
-      ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
-      ,GAME_ID SERIAL NOT NULL
-      ,SUID SERIAL NOT NULL
-      ,SEASON SMALLINT NOT NULL
-      ,PLAYER VARCHAR(255) NOT NULL
-      ,PLACE SMALLINT NOT NULL
-      ,CHARACTER VARCHAR(255) NOT NULL
-      ,MAP VARCHAR(255) NOT NULL
-      ,MU DOUBLE PRECISION NOT NULL
-      ,SIGMA DOUBLE PRECISION NOT NULL
-      ,ORDINAL DOUBLE PRECISION NOT NULL
-    );
-  `
-      : await client.sql`
-    CREATE TABLE IF NOT EXISTS mk_skill_all_time_four_player (
-      id SERIAL PRIMARY KEY
-      ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
-      ,GAME_ID SERIAL NOT NULL
-      ,SUID SERIAL NOT NULL
-      ,SEASON SMALLINT NOT NULL
-      ,PLAYER VARCHAR(255) NOT NULL
-      ,PLACE SMALLINT NOT NULL
-      ,CHARACTER VARCHAR(255) NOT NULL
-      ,MAP VARCHAR(255) NOT NULL
-      ,MU DOUBLE PRECISION NOT NULL
-      ,SIGMA DOUBLE PRECISION NOT NULL
-      ,ORDINAL DOUBLE PRECISION NOT NULL
-    );
+  `;
+  }
+
+  await client.sql`
+      CREATE TABLE IF NOT EXISTS mk_skill_all_time_four_player (
+        id SERIAL PRIMARY KEY
+        ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
+        ,GAME_ID SERIAL NOT NULL
+        ,SUID SERIAL NOT NULL
+        ,SEASON SMALLINT NOT NULL
+        ,PLAYER VARCHAR(255) NOT NULL
+        ,PLACE SMALLINT NOT NULL
+        ,CHARACTER VARCHAR(255) NOT NULL
+        ,MAP VARCHAR(255) NOT NULL
+        ,MU DOUBLE PRECISION NOT NULL
+        ,SIGMA DOUBLE PRECISION NOT NULL
+        ,ORDINAL DOUBLE PRECISION NOT NULL
+      );
+    `;
+
+  await client.sql`
+  CREATE INDEX IF NOT EXISTS idx_skill_all_time_game_id 
+    ON mk_skill_all_time_four_player(game_id);
   `;
 
   const games = await client.sql<TGamesTable>`
@@ -73,7 +65,15 @@ async function seed_skill_all_time({
         ,mk_form_data.suid_window_end
       FROM mk_form_data
         WHERE mk_form_data.players = ${game_type}
+        AND mk_form_data.id NOT IN (
+          SELECT DISTINCT game_id FROM mk_skill_all_time_four_player
+        )
     `;
+
+  if (games.rows.length === 0) {
+    console.log("No new games to process. Skipping.");
+    return;
+  }
 
   // Process each game
   for (const game of games.rows) {
@@ -127,34 +127,20 @@ async function seed_skill_all_time({
   }
 }
 
-async function seed_skill_seasonal({
+async function seed_skill_seasonal_four_player({
   client,
   if_exists,
   game_type,
 }: TSeedTableProps) {
   const processor = createSkillProcessor();
 
-  console.log("create");
-  const createTable =
-    if_exists === "replace"
-      ? await client.sql`
-      DROP TABLE IF EXISTS mk_skill_seasonal_four_player;
-      CREATE TABLE IF NOT EXISTS mk_skill_seasonal_four_player (
-        id SERIAL PRIMARY KEY
-        ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
-        ,GAME_ID SERIAL NOT NULL
-        ,SUID SERIAL NOT NULL
-        ,SEASON SMALLINT NOT NULL
-        ,PLAYER VARCHAR(255) NOT NULL
-        ,PLACE SMALLINT NOT NULL
-        ,CHARACTER VARCHAR(255) NOT NULL
-        ,MAP VARCHAR(255) NOT NULL
-        ,MU DOUBLE PRECISION NOT NULL
-        ,SIGMA DOUBLE PRECISION NOT NULL
-        ,ORDINAL DOUBLE PRECISION NOT NULL
-      );
-    `
-      : await client.sql`
+  if (if_exists === "replace") {
+    await client.sql`
+    DROP TABLE IF EXISTS mk_skill_seasonal_four_player;
+  `;
+  }
+
+  await client.sql`
       CREATE TABLE IF NOT EXISTS mk_skill_seasonal_four_player (
         id SERIAL PRIMARY KEY
         ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
@@ -170,6 +156,11 @@ async function seed_skill_seasonal({
         ,ORDINAL DOUBLE PRECISION NOT NULL
       );
     `;
+
+  await client.sql`
+  CREATE INDEX IF NOT EXISTS idx_skill_all_time_game_id 
+    ON mk_skill_seasonal_four_player(game_id);
+  `;
 
   console.log("games");
   const games = await client.sql<TGamesTable>`
@@ -193,7 +184,15 @@ async function seed_skill_seasonal({
         ,mk_form_data.suid_window_end
       FROM mk_form_data
         WHERE mk_form_data.players = ${game_type}
+        AND mk_form_data.id NOT IN (
+          SELECT DISTINCT game_id FROM mk_skill_seasonal_four_player
+        )
     `;
+
+  if (games.rows.length === 0) {
+    console.log("No new games to process. Skipping.");
+    return;
+  }
 
   // Reset the ratings at the start of each season
   let lastSeason = null;
@@ -261,23 +260,28 @@ async function main() {
     // ---------------------------------------------------------
     // All Time
     // -----------------------------
-    // await seed_skill_all_time({
+    // await seed_skill_all_time_four_player({
     //   client: client,
     //   if_exists: "replace",
     //   game_type: "4",
     // });
-    // await seed_skill_all_time_four_player(client, "append");
-
-    // Per Season
-    // -----------------------------
-    console.log("here");
-    await seed_skill_seasonal({
+    await seed_skill_all_time_four_player({
       client: client,
-      if_exists: "replace",
+      if_exists: "append",
       game_type: "4",
     });
-    // await seed_skill_seasonal_four_player(client, "append");
-
+    // Per Season
+    // -----------------------------
+    // await seed_skill_seasonal_four_player({
+    //   client: client,
+    //   if_exists: "replace",
+    //   game_type: "4",
+    // });
+    await seed_skill_seasonal_four_player({
+      client: client,
+      if_exists: "append",
+      game_type: "4",
+    });
     // ---------------------------------------------------------
     // 3 Player
     // ---------------------------------------------------------
