@@ -89,11 +89,14 @@ async function seed_skill_all_time_four_player({
 
   await client.sql`BEGIN`;
   try {
-    const insertQuery = `
+    // Insert into database
+    const promises = allHistoryRows.map((record) => {
+      return client.sql`
     INSERT INTO mk_skill_all_time_four_player (
       timestamp,
       game_id,
-      suid, season,
+      suid,
+      season,
       player,
       place,
       character,
@@ -101,27 +104,30 @@ async function seed_skill_all_time_four_player({
       mu,
       sigma,
       ordinal
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `;
+    ) VALUES (
+     ${
+       record.timestamp instanceof Date
+         ? record.timestamp.toISOString()
+         : record.timestamp
+     },
+      ${record.game_id},
+      ${record.suid},
+      ${record.season},
+      ${record.player}
+      ${record.place},
+      ${record.character},
+      ${record.map},
+      ${record.mu},
+      ${record.sigma},
+      ${record.ordinal},
+    );
+    `;
+    });
 
-    for (const row of allHistoryRows) {
-      await client.query(insertQuery, [
-        row.timestamp,
-        row.game_id,
-        row.suid,
-        row.season,
-        row.player,
-        row.place,
-        row.character,
-        row.map,
-        row.mu,
-        row.sigma,
-        row.ordinal,
-      ]);
-    }
+    const results = await Promise.all(promises);
     await client.sql`COMMIT`;
     console.log(
-      `Inserted ${allHistoryRows.length} rows into mk_skill_all_time_four_player`
+      `Inserted ${results.length} rows into mk_skill_all_time_four_player`
     );
   } catch (error) {
     // await client.sql`ROLLBACK`;
@@ -214,11 +220,14 @@ async function seed_skill_seasonal_four_player({
 
   await client.sql`BEGIN`;
   try {
-    const insertQuery = `
+    // Insert into database
+    const promises = allHistoryRows.map((record) => {
+      return client.sql`
     INSERT INTO mk_skill_seasonal_four_player (
       timestamp,
       game_id,
-      suid, season,
+      suid,
+      season,
       player,
       place,
       character,
@@ -226,27 +235,30 @@ async function seed_skill_seasonal_four_player({
       mu,
       sigma,
       ordinal
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `;
+    ) VALUES (
+     ${
+       record.timestamp instanceof Date
+         ? record.timestamp.toISOString()
+         : record.timestamp
+     },
+      ${record.game_id},
+      ${record.suid},
+      ${record.season},
+      ${record.player}
+      ${record.place},
+      ${record.character},
+      ${record.map},
+      ${record.mu},
+      ${record.sigma},
+      ${record.ordinal},
+    );
+    `;
+    });
 
-    for (const row of allHistoryRows) {
-      await client.query(insertQuery, [
-        row.timestamp,
-        row.game_id,
-        row.suid,
-        row.season,
-        row.player,
-        row.place,
-        row.character,
-        row.map,
-        row.mu,
-        row.sigma,
-        row.ordinal,
-      ]);
-    }
+    const results = await Promise.all(promises);
     await client.sql`COMMIT`;
     console.log(
-      `Inserted ${allHistoryRows.length} rows into mk_skill_seasonal_four_player`
+      `Inserted ${results.length} rows into mk_skill_seasonal_four_player`
     );
   } catch (error) {
     // await client.sql`ROLLBACK`;
@@ -336,11 +348,14 @@ async function seed_skill_all_time_three_player({
 
   await client.sql`BEGIN`;
   try {
-    const insertQuery = `
+    // Insert into database
+    const promises = allHistoryRows.map((record) => {
+      return client.sql`
     INSERT INTO mk_skill_all_time_three_player (
       timestamp,
       game_id,
-      suid, season,
+      suid,
+      season,
       player,
       place,
       character,
@@ -348,27 +363,30 @@ async function seed_skill_all_time_three_player({
       mu,
       sigma,
       ordinal
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `;
+    ) VALUES (
+     ${
+       record.timestamp instanceof Date
+         ? record.timestamp.toISOString()
+         : record.timestamp
+     },
+      ${record.game_id},
+      ${record.suid},
+      ${record.season},
+      ${record.player}
+      ${record.place},
+      ${record.character},
+      ${record.map},
+      ${record.mu},
+      ${record.sigma},
+      ${record.ordinal},
+    );
+    `;
+    });
 
-    for (const row of allHistoryRows) {
-      await client.query(insertQuery, [
-        row.timestamp,
-        row.game_id,
-        row.suid,
-        row.season,
-        row.player,
-        row.place,
-        row.character,
-        row.map,
-        row.mu,
-        row.sigma,
-        row.ordinal,
-      ]);
-    }
+    const results = await Promise.all(promises);
     await client.sql`COMMIT`;
     console.log(
-      `Inserted ${allHistoryRows.length} rows into mk_skill_all_time_three_player`
+      `Inserted ${results.length} rows into mk_skill_all_time_three_player`
     );
   } catch (error) {
     // await client.sql`ROLLBACK`;
@@ -461,11 +479,14 @@ async function seed_skill_seasonal_three_player({
 
   await client.sql`BEGIN`;
   try {
-    const insertQuery = `
+    // Insert into database
+    const promises = allHistoryRows.map((record) => {
+      return client.sql`
     INSERT INTO mk_skill_seasonal_three_player (
       timestamp,
       game_id,
-      suid, season,
+      suid,
+      season,
       player,
       place,
       character,
@@ -473,27 +494,30 @@ async function seed_skill_seasonal_three_player({
       mu,
       sigma,
       ordinal
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `;
+    ) VALUES (
+     ${
+       record.timestamp instanceof Date
+         ? record.timestamp.toISOString()
+         : record.timestamp
+     },
+      ${record.game_id},
+      ${record.suid},
+      ${record.season},
+      ${record.player}
+      ${record.place},
+      ${record.character},
+      ${record.map},
+      ${record.mu},
+      ${record.sigma},
+      ${record.ordinal},
+    );
+    `;
+    });
 
-    for (const row of allHistoryRows) {
-      await client.query(insertQuery, [
-        row.timestamp,
-        row.game_id,
-        row.suid,
-        row.season,
-        row.player,
-        row.place,
-        row.character,
-        row.map,
-        row.mu,
-        row.sigma,
-        row.ordinal,
-      ]);
-    }
+    const results = await Promise.all(promises);
     await client.sql`COMMIT`;
     console.log(
-      `Inserted ${allHistoryRows.length} rows into mk_skill_seasonal_three_player`
+      `Inserted ${results.length} rows into mk_skill_seasonal_three_player`
     );
   } catch (error) {
     // await client.sql`ROLLBACK`;
@@ -583,11 +607,14 @@ async function seed_skill_all_time_two_player({
 
   await client.sql`BEGIN`;
   try {
-    const insertQuery = `
+    // Insert into database
+    const promises = allHistoryRows.map((record) => {
+      return client.sql`
     INSERT INTO mk_skill_all_time_two_player (
       timestamp,
       game_id,
-      suid, season,
+      suid,
+      season,
       player,
       place,
       character,
@@ -595,27 +622,30 @@ async function seed_skill_all_time_two_player({
       mu,
       sigma,
       ordinal
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `;
+    ) VALUES (
+     ${
+       record.timestamp instanceof Date
+         ? record.timestamp.toISOString()
+         : record.timestamp
+     },
+      ${record.game_id},
+      ${record.suid},
+      ${record.season},
+      ${record.player}
+      ${record.place},
+      ${record.character},
+      ${record.map},
+      ${record.mu},
+      ${record.sigma},
+      ${record.ordinal},
+    );
+    `;
+    });
 
-    for (const row of allHistoryRows) {
-      await client.query(insertQuery, [
-        row.timestamp,
-        row.game_id,
-        row.suid,
-        row.season,
-        row.player,
-        row.place,
-        row.character,
-        row.map,
-        row.mu,
-        row.sigma,
-        row.ordinal,
-      ]);
-    }
+    const results = await Promise.all(promises);
     await client.sql`COMMIT`;
     console.log(
-      `Inserted ${allHistoryRows.length} rows into mk_skill_all_time_two_player`
+      `Inserted ${results.length} rows into mk_skill_all_time_two_player`
     );
   } catch (error) {
     // await client.sql`ROLLBACK`;
@@ -708,11 +738,14 @@ async function seed_skill_seasonal_two_player({
 
   await client.sql`BEGIN`;
   try {
-    const insertQuery = `
+    // Insert into database
+    const promises = allHistoryRows.map((record) => {
+      return client.sql`
     INSERT INTO mk_skill_seasonal_two_player (
       timestamp,
       game_id,
-      suid, season,
+      suid,
+      season,
       player,
       place,
       character,
@@ -720,27 +753,30 @@ async function seed_skill_seasonal_two_player({
       mu,
       sigma,
       ordinal
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `;
+    ) VALUES (
+     ${
+       record.timestamp instanceof Date
+         ? record.timestamp.toISOString()
+         : record.timestamp
+     },
+      ${record.game_id},
+      ${record.suid},
+      ${record.season},
+      ${record.player}
+      ${record.place},
+      ${record.character},
+      ${record.map},
+      ${record.mu},
+      ${record.sigma},
+      ${record.ordinal},
+    );
+    `;
+    });
 
-    for (const row of allHistoryRows) {
-      await client.query(insertQuery, [
-        row.timestamp,
-        row.game_id,
-        row.suid,
-        row.season,
-        row.player,
-        row.place,
-        row.character,
-        row.map,
-        row.mu,
-        row.sigma,
-        row.ordinal,
-      ]);
-    }
+    const results = await Promise.all(promises);
     await client.sql`COMMIT`;
     console.log(
-      `Inserted ${allHistoryRows.length} rows into mk_skill_seasonal_two_player`
+      `Inserted ${results.length} rows into mk_skill_seasonal_two_player`
     );
   } catch (error) {
     // await client.sql`ROLLBACK`;
@@ -772,7 +808,6 @@ async function main() {
     // await seed_skill_seasonal_four_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
     await seed_skill_seasonal_four_player({
       client: client,
@@ -786,7 +821,6 @@ async function main() {
     // await seed_skill_all_time_three_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
     await seed_skill_all_time_three_player({
       client: client,
@@ -797,7 +831,6 @@ async function main() {
     // await seed_skill_seasonal_three_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
     await seed_skill_seasonal_three_player({
       client: client,
@@ -811,7 +844,6 @@ async function main() {
     // await seed_skill_all_time_two_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
     await seed_skill_all_time_two_player({
       client: client,
@@ -822,7 +854,6 @@ async function main() {
     // await seed_skill_seasonal_two_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
     await seed_skill_seasonal_two_player({
       client: client,
