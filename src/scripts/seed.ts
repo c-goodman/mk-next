@@ -85,36 +85,10 @@ async function seed_mk_form_data({
 
   const seedData = await parseCSV<TGamesTableEntry>(source);
 
-  // Get the latest timestamp in the table
-  const result = await client.sql`
-    SELECT MAX(timestamp) as max_timestamp FROM mk_form_data;
-  `;
-
-  // Get the first row from the result of MAX(TIMESTAMP) query
-  const maxTimestampRow = result.rows[0];
-
-  // Extract the max timestamp (may be `null` if the table is empty)
-  const maxTimestamp: Date | null = maxTimestampRow?.max_timestamp ?? null;
-
-  // Filter CSV records to only include those with a newer timestamp
-  const filteredData = seedData.filter((record) => {
-    const ts = new Date(record.timestamp);
-
-    // Include the record if:
-    // - The table is empty (no max timestamp yet), OR
-    // - This record's timestamp is more recent than the max
-    return !maxTimestamp || ts > maxTimestamp;
-  });
-
-  if (filteredData.length === 0) {
-    console.log("No new records to insert mk_form_data");
-    return;
-  }
-
   await client.sql`BEGIN`;
   try {
     // Insert into database
-    const promises = filteredData.map((record) => {
+    const promises = seedData.map((record) => {
       return client.sql`
         INSERT INTO mk_form_data (
         TIMESTAMP,
@@ -209,31 +183,10 @@ async function seed_elo_per_season({
 
   const seedData = await parseCSV<TEloSeasonTableEntry>(source);
 
-  // Get the latest timestamp in the table
-  const result = await client.sql`
-    SELECT MAX(date) as max_timestamp FROM mk_elo_per_season;
-  `;
-
-  // Get the first row from the result of MAX(TIMESTAMP) query
-  const maxTimestampRow = result.rows[0];
-
-  // Extract the max timestamp (may be `null` if the table is empty)
-  const maxTimestamp: Date | null = maxTimestampRow?.max_timestamp ?? null;
-
-  // Filter CSV records to only include those with a newer timestamp
-  const filteredData = seedData.filter((record) => {
-    const ts = new Date(record.date);
-
-    // Include the record if:
-    // - The table is empty (no max timestamp yet), OR
-    // - This record's timestamp is more recent than the max
-    return !maxTimestamp || ts > maxTimestamp;
-  });
-
   await client.sql`BEGIN`;
   try {
     // Insert into database
-    const promises = filteredData.map((record) => {
+    const promises = seedData.map((record) => {
       return client.sql`
     INSERT INTO mk_elo_per_season (
       player_id,
@@ -285,31 +238,10 @@ async function seed_elo_per_map({
 
   const seedData = await parseCSV<TTEloMapsTableEntry>(source);
 
-  // Get the latest timestamp in the table
-  const result = await client.sql`
-    SELECT MAX(date) as max_timestamp FROM mk_elo_per_map;
-  `;
-
-  // Get the first row from the result of MAX(TIMESTAMP) query
-  const maxTimestampRow = result.rows[0];
-
-  // Extract the max timestamp (may be `null` if the table is empty)
-  const maxTimestamp: Date | null = maxTimestampRow?.max_timestamp ?? null;
-
-  // Filter CSV records to only include those with a newer timestamp
-  const filteredData = seedData.filter((record) => {
-    const ts = new Date(record.date);
-
-    // Include the record if:
-    // - The table is empty (no max timestamp yet), OR
-    // - This record's timestamp is more recent than the max
-    return !maxTimestamp || ts > maxTimestamp;
-  });
-
   await client.sql`BEGIN`;
   try {
     // Insert into database
-    const promises = filteredData.map((record) => {
+    const promises = seedData.map((record) => {
       return client.sql`
     INSERT INTO mk_elo_per_map (
       player_id,
@@ -446,7 +378,7 @@ async function main() {
   try {
     await seed_mk_form_data({
       client: client,
-      if_exists: "append", // Optional "replace" to re-migrate
+      if_exists: "replace", // Optional "replace" to re-migrate
       source: "./form_data_migration/form_data_valid_new_records.csv",
     });
     // Optionally re-migrate
@@ -458,13 +390,13 @@ async function main() {
 
     await seed_elo_per_season({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
       source: "./form_data_migration/elo_per_season.csv",
     });
 
     await seed_elo_per_map({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
       source: "./form_data_migration/elo_per_map.csv",
     });
 
