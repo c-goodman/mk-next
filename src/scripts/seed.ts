@@ -5,10 +5,10 @@ import { db, VercelPoolClient } from "@vercel/postgres";
 import { TEloSeasonTable } from "../app/lib/definitions";
 import "dotenv/config";
 import {
-  TCharactersTable,
+  //   TCharactersTable,
   TEloMapsTable,
   TGamesTable,
-  TMapsTable,
+  //   TMapsTable,
 } from "@/app/lib/definitions";
 
 const parseCSV = async <T extends object>(filePath: string): Promise<T[]> => {
@@ -38,8 +38,8 @@ type TCSVSeedTableProps = {
 type TGamesTableEntry = Omit<TGamesTable, "id" | "image_url">;
 type TEloSeasonTableEntry = Omit<TEloSeasonTable, "id">;
 type TTEloMapsTableEntry = Omit<TEloMapsTable, "id">;
-type TMapsTableEntry = Omit<TMapsTable, "id">;
-type TCharactersTableEntry = Omit<TCharactersTable, "id">;
+// type TMapsTableEntry = Omit<TMapsTable, "id">;
+// type TCharactersTableEntry = Omit<TCharactersTable, "id">;
 
 // ------------------------------------------------------------------
 // Games
@@ -90,12 +90,19 @@ async function seed_mk_form_data({
     SELECT MAX(timestamp) as max_timestamp FROM mk_form_data;
   `;
 
+  // Get the first row from the result of MAX(TIMESTAMP) query
   const maxTimestampRow = result.rows[0];
+
+  // Extract the max timestamp (may be `null` if the table is empty)
   const maxTimestamp: Date | null = maxTimestampRow?.max_timestamp ?? null;
 
-  // Filter records with a newer timestamp
+  // Filter CSV records to only include those with a newer timestamp
   const filteredData = seedData.filter((record) => {
     const ts = new Date(record.timestamp);
+
+    // Include the record if:
+    // - The table is empty (no max timestamp yet), OR
+    // - This record's timestamp is more recent than the max
     return !maxTimestamp || ts > maxTimestamp;
   });
 
@@ -207,19 +214,21 @@ async function seed_elo_per_season({
     SELECT MAX(date) as max_timestamp FROM mk_elo_per_season;
   `;
 
+  // Get the first row from the result of MAX(TIMESTAMP) query
   const maxTimestampRow = result.rows[0];
+
+  // Extract the max timestamp (may be `null` if the table is empty)
   const maxTimestamp: Date | null = maxTimestampRow?.max_timestamp ?? null;
 
-  // Filter records with a newer timestamp
+  // Filter CSV records to only include those with a newer timestamp
   const filteredData = seedData.filter((record) => {
     const ts = new Date(record.date);
+
+    // Include the record if:
+    // - The table is empty (no max timestamp yet), OR
+    // - This record's timestamp is more recent than the max
     return !maxTimestamp || ts > maxTimestamp;
   });
-
-  if (filteredData.length === 0) {
-    console.log("No new records to insert mk_elo_per_season");
-    return;
-  }
 
   await client.sql`BEGIN`;
   try {
@@ -281,19 +290,21 @@ async function seed_elo_per_map({
     SELECT MAX(date) as max_timestamp FROM mk_elo_per_map;
   `;
 
+  // Get the first row from the result of MAX(TIMESTAMP) query
   const maxTimestampRow = result.rows[0];
+
+  // Extract the max timestamp (may be `null` if the table is empty)
   const maxTimestamp: Date | null = maxTimestampRow?.max_timestamp ?? null;
 
-  // Filter records with a newer timestamp
+  // Filter CSV records to only include those with a newer timestamp
   const filteredData = seedData.filter((record) => {
     const ts = new Date(record.date);
+
+    // Include the record if:
+    // - The table is empty (no max timestamp yet), OR
+    // - This record's timestamp is more recent than the max
     return !maxTimestamp || ts > maxTimestamp;
   });
-
-  if (filteredData.length === 0) {
-    console.log("No new records to insert mk_elo_per_map");
-    return;
-  }
 
   await client.sql`BEGIN`;
   try {
