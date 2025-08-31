@@ -1,8 +1,5 @@
 import { rating, rate, Rating, ordinal } from "openskill";
-import { TGamesTable, TSkillTable } from "@/app/lib/definitions";
-
-// Define the shape of skill history entries (excluding the DB auto-generated ID)
-type TSkillTableEntry = Omit<TSkillTable, "id">;
+import { TGamesTable, TSkillTableEntry } from "@/app/lib/definitions";
 
 /**
  * Parameters for recording a player's skill state after a game.
