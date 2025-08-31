@@ -107,7 +107,7 @@ function RecentGamesBarChart({
         }
       };
     }
-  }, [games, metric]); // Run effect when input changes
+  }, [games, metric, metricLabel]); // Run effect when input changes
 
   if (!games || games.length === 0) {
     return <p className="mt-4 text-gray-400">No data available.</p>;
