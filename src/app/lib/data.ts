@@ -1264,7 +1264,7 @@ export async function fetchEloPerSeason(season: number) {
         ,mk_elo_per_season.season
         ,mk_elo_per_season.players
       FROM mk_elo_per_season
-        WHERE mk_elo_per_season.season = '19'
+        WHERE mk_elo_per_season.season = ${season}
     `;
 
     if (!elo) return;
