@@ -26,11 +26,13 @@ Chart.defaults.color = "#2196F3";
 interface RecentGamesData {
   games: TRecentGamesMetricsChart[];
   metric: keyof Omit<TRecentGamesMetricsChart, "month">;
+  metricLabel: string;
 }
 
 function RecentGamesBarChart({
   games: games,
   metric: metric,
+  metricLabel: metricLabel,
 }: RecentGamesData) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null); // Ref to store the chart instance
@@ -78,10 +80,10 @@ function RecentGamesBarChart({
         plugins: {
           tooltip: {
             callbacks: {
-              // Customizing the tooltip to show the metric
+              // Customizing the tooltip to show the metric label
               label: (tooltipItem: TooltipItem<"bar">) => {
                 const gamesAmount = Number(tooltipItem.raw); // Make sure it's a number
-                return `${metric}: ${
+                return `${metricLabel}: ${
                   Number.isInteger(gamesAmount)
                     ? gamesAmount.toString() // If an integer keep with no decimal places
                     : gamesAmount.toFixed(2) // If a float round to two decimal places
