@@ -78,10 +78,14 @@ function RecentGamesBarChart({
         plugins: {
           tooltip: {
             callbacks: {
-              // Customizing the tooltip to show the total revenue
+              // Customizing the tooltip to show the metric
               label: (tooltipItem: TooltipItem<"bar">) => {
-                const gamesAmount = tooltipItem.raw as number; // This is the total revenue for the specific bar
-                return `Total Games: ${gamesAmount.toString()}`; // Format the value as needed
+                const gamesAmount = Number(tooltipItem.raw); // Make sure it's a number
+                return `${metric}: ${
+                  Number.isInteger(gamesAmount)
+                    ? gamesAmount.toString() // If an integer keep with no decimal places
+                    : gamesAmount.toFixed(2) // If a float round to two decimal places
+                }`; // Format the value as needed
               },
             },
           },
@@ -94,16 +98,15 @@ function RecentGamesBarChart({
       const chartInstance = new Chart(ctx, config);
       chartInstanceRef.current = chartInstance; // Store the chart instance in the ref
 
-      // Cleanup the chart instance when the component unmounts or `revenue` changes
+      // Cleanup the chart instance when the component unmounts or input changes
       return () => {
         if (chartInstanceRef.current) {
           chartInstanceRef.current.destroy();
         }
       };
     }
-  }, [games, metric]); // Run effect when `revenue` changes
+  }, [games, metric]); // Run effect when input changes
 
-  // Return JSX - Show "No data available" if no revenue data
   if (!games || games.length === 0) {
     return <p className="mt-4 text-gray-400">No data available.</p>;
   }
