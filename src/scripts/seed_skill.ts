@@ -1,29 +1,26 @@
 import { createSkillProcessor } from "./skill";
 import { db, VercelPoolClient } from "@vercel/postgres";
-import { TGamesTable, TSkillTable } from "@/app/lib/definitions";
+import { TGamesTable } from "@/app/lib/definitions";
 import "dotenv/config";
-import { bulkInsertRows } from "./bulkInsertRows";
 
 type TSeedTableProps = {
   client: VercelPoolClient;
   if_exists: "append" | "replace";
   game_type: "2" | "3" | "4";
-  table_name: string;
 };
 
 async function seed_skill_all_time({
   client,
   if_exists,
   game_type,
-  table_name,
 }: TSeedTableProps) {
   const processor = createSkillProcessor();
 
   const createTable =
     if_exists === "replace"
       ? await client.sql`
-    DROP TABLE IF EXISTS ${table_name};
-    CREATE TABLE IF NOT EXISTS ${table_name} (
+    DROP TABLE IF EXISTS mk_skill_all_time_four_player;
+    CREATE TABLE IF NOT EXISTS mk_skill_all_time_four_player (
       id SERIAL PRIMARY KEY
       ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
       ,GAME_ID SERIAL NOT NULL
@@ -39,7 +36,7 @@ async function seed_skill_all_time({
     );
   `
       : await client.sql`
-    CREATE TABLE IF NOT EXISTS ${table_name} (
+    CREATE TABLE IF NOT EXISTS mk_skill_all_time_four_player (
       id SERIAL PRIMARY KEY
       ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
       ,GAME_ID SERIAL NOT NULL
@@ -86,41 +83,63 @@ async function seed_skill_all_time({
   const allHistoryRows = processor.getHistory();
 
   console.log(`Processed ${games.rows.length} games`);
-  console.log(`Generated ${allHistoryRows.length} player history rows`);
 
-  bulkInsertRows({
-    client: client,
-    rows: allHistoryRows,
-    columns: [
-      "timestamp",
-      "game_id",
-      "suid",
-      "season",
-      "player",
-      "place",
-      "character",
-      "map",
-      "mu",
-      "sigma",
-      "ordinal",
-    ],
-    tableName: table_name,
-  });
+  await client.sql`BEGIN`;
+  try {
+    const insertQuery = `
+    INSERT INTO mk_skill_all_time_four_player (
+      timestamp,
+      game_id,
+      suid, season,
+      player,
+      place,
+      character,
+      map,
+      mu,
+      sigma,
+      ordinal
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+  `;
+
+    for (const row of allHistoryRows) {
+      await client.query(insertQuery, [
+        row.timestamp,
+        row.game_id,
+        row.suid,
+        row.season,
+        row.player,
+        row.place,
+        row.character,
+        row.map,
+        row.mu,
+        row.sigma,
+        row.ordinal,
+      ]);
+    }
+    await client.sql`COMMIT`;
+    console.log(
+      `Inserted ${allHistoryRows.length} rows into mk_skill_all_time_four_player`
+    );
+  } catch (error) {
+    // await client.sql`ROLLBACK`;
+    console.error("Bulk insert failed:", error);
+    throw error;
+  }
 }
 
 async function seed_skill_seasonal({
   client,
   if_exists,
   game_type,
-  table_name,
 }: TSeedTableProps) {
   const processor = createSkillProcessor();
 
+  console.log("create");
   const createTable =
     if_exists === "replace"
       ? await client.sql`
-      DROP TABLE IF EXISTS ${table_name};
-      CREATE TABLE IF NOT EXISTS ${table_name} (
+      DROP TABLE IF EXISTS mk_skill_seasonal_four_player;
+      CREATE TABLE IF NOT EXISTS mk_skill_seasonal_four_player (
         id SERIAL PRIMARY KEY
         ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
         ,GAME_ID SERIAL NOT NULL
@@ -136,7 +155,7 @@ async function seed_skill_seasonal({
       );
     `
       : await client.sql`
-      CREATE TABLE IF NOT EXISTS ${table_name} (
+      CREATE TABLE IF NOT EXISTS mk_skill_seasonal_four_player (
         id SERIAL PRIMARY KEY
         ,TIMESTAMP TIMESTAMP WITH TIME ZONE NOT NULL
         ,GAME_ID SERIAL NOT NULL
@@ -152,6 +171,7 @@ async function seed_skill_seasonal({
       );
     `;
 
+  console.log("games");
   const games = await client.sql<TGamesTable>`
       SELECT 
         mk_form_data.id
@@ -188,10 +208,11 @@ async function seed_skill_seasonal({
   const allHistoryRows = processor.getHistory();
 
   console.log(`Processed ${games.rows.length} games`);
-  console.log(`Generated ${allHistoryRows.length} player history rows`);
 
-  const insertQuery = `
-    INSERT INTO ${table_name} (
+  await client.sql`BEGIN`;
+  try {
+    const insertQuery = `
+    INSERT INTO mk_skill_seasonal_four_player (
       timestamp,
       game_id,
       suid, season,
@@ -205,25 +226,30 @@ async function seed_skill_seasonal({
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
   `;
 
-  await client.sql`BEGIN`;
-
-  for (const row of allHistoryRows) {
-    await client.query(insertQuery, [
-      row.timestamp,
-      row.game_id,
-      row.suid,
-      row.season,
-      row.player,
-      row.place,
-      row.character,
-      row.map,
-      row.mu,
-      row.sigma,
-      row.ordinal,
-    ]);
+    for (const row of allHistoryRows) {
+      await client.query(insertQuery, [
+        row.timestamp,
+        row.game_id,
+        row.suid,
+        row.season,
+        row.player,
+        row.place,
+        row.character,
+        row.map,
+        row.mu,
+        row.sigma,
+        row.ordinal,
+      ]);
+    }
+    await client.sql`COMMIT`;
+    console.log(
+      `Inserted ${allHistoryRows.length} rows into mk_skill_seasonal_four_player`
+    );
+  } catch (error) {
+    // await client.sql`ROLLBACK`;
+    console.error("Bulk insert failed:", error);
+    throw error;
   }
-
-  await client.sql`COMMIT`;
 }
 
 // to run script `pnpm dlx tsx src/scripts/seed_skill.ts`
@@ -235,21 +261,20 @@ async function main() {
     // ---------------------------------------------------------
     // All Time
     // -----------------------------
-    await seed_skill_all_time({
-      client: client,
-      if_exists: "replace",
-      game_type: "4",
-      table_name: "mk_skill_all_time_four_player",
-    });
+    // await seed_skill_all_time({
+    //   client: client,
+    //   if_exists: "replace",
+    //   game_type: "4",
+    // });
     // await seed_skill_all_time_four_player(client, "append");
 
     // Per Season
     // -----------------------------
+    console.log("here");
     await seed_skill_seasonal({
       client: client,
       if_exists: "replace",
       game_type: "4",
-      table_name: "mk_skill_seasonal_four_player",
     });
     // await seed_skill_seasonal_four_player(client, "append");
 
