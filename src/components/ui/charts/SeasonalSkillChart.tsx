@@ -46,7 +46,7 @@ function SkillLineChart({ data, downloadTitle, downloadFileName }: Props) {
   );
 
   const [showSettings, setShowSettings] = useState(false);
-  const [panningEnabled, setPanningEnabled] = useState(false);
+  const [panningEnabled, setPanningEnabled] = useState(true);
   const [lassoEnabled, setLassoEnabled] = useState(true);
   const [scrollZoomEnabled, setScrollZoomEnabled] = useState(false);
   const [colorBlindEnabled, setColorBlindEnabled] = useState(false);
@@ -203,7 +203,7 @@ function SkillLineChart({ data, downloadTitle, downloadFileName }: Props) {
           zoom: {
             zoom: {
               drag: {
-                enabled: lassoEnabled,
+                enabled: true,
                 backgroundColor: "rgba(0,0,0,0.1)",
                 borderColor: "rgba(0,0,0,0.3)",
                 borderWidth: 1,
@@ -211,8 +211,9 @@ function SkillLineChart({ data, downloadTitle, downloadFileName }: Props) {
               mode: "xy",
             },
             pan: {
-              enabled: false,
+              enabled: true,
               mode: "xy",
+              modifierKey: "shift",
             },
           },
         },

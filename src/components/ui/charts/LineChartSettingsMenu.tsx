@@ -57,7 +57,9 @@ export function LineChartSettingsMenu({
         className="hover:bg-red-100 p-1 rounded"
       >
         <HandRaisedIcon
-          title={`Panning ${panningEnabled ? "Enabled" : "Disabled"}`}
+          title={`Panning ${
+            panningEnabled ? "Enabled (Hold Shift)" : "Disabled"
+          }`}
           className={`h-5 w-5 ${!panningEnabled ? "text-gray-400" : ""}`}
         />
       </button>
