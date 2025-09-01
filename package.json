@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "pnpm dlx tsx ./src/scripts/seed.ts",
+    "seed": "node ./src/scripts/seed.mjs",
     "seed_skill": "pnpm dlx tsx ./src/scripts/seed_skill.ts"
   },
   "dependencies": {
