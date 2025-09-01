@@ -20,6 +20,7 @@ import {
   TUserNames,
   TUsersTable,
   TEloSeasonTable,
+  TSkillTable,
 } from "./definitions";
 
 export async function fetchRevenue() {
@@ -925,6 +926,24 @@ export async function fetchMostRecentSeasonGamesCount(): Promise<TMostRecentSeas
   }
 }
 
+export async function fetchUniqueSeasonsIds(): Promise<number[]> {
+  try {
+    const result = await sql<{ season: number }>` 
+      SELECT DISTINCT season 
+      FROM mk_form_data
+      ORDER BY season DESC;
+    `;
+
+    // Extract seasons from rows
+    const seasons = result.rows.map((row) => row.season);
+
+    return seasons;
+  } catch (error) {
+    console.error("Database Error (fetchUniqueSeasonsIds):", error);
+    throw new Error("Failed to fetch unique seasonIds.");
+  }
+}
+
 export async function fetchLatestGames() {
   try {
     const data = await sql<TGamesTable>`
@@ -1279,3 +1298,32 @@ export async function fetchEloPerSeason(season: number) {
 // --------------------------------------------------------
 // Openskill
 // --------------------------------------------------------
+// 4 Player
+export async function fetchSkillPerSeasonFourPlayer(season: number) {
+  try {
+    const skill = await sql<TSkillTable>`
+      SELECT
+        mk_skill_seasonal_four_player.id
+        ,mk_skill_seasonal_four_player.timestamp
+        ,mk_skill_seasonal_four_player.game_id
+        ,mk_skill_seasonal_four_player.suid
+        ,mk_skill_seasonal_four_player.season
+        ,mk_skill_seasonal_four_player.player
+        ,mk_skill_seasonal_four_player.place
+        ,mk_skill_seasonal_four_player.character
+        ,mk_skill_seasonal_four_player.map
+        ,mk_skill_seasonal_four_player.mu
+        ,mk_skill_seasonal_four_player.sigma
+        ,mk_skill_seasonal_four_player.ordinal
+      FROM mk_skill_seasonal_four_player
+        WHERE mk_skill_seasonal_four_player.season = ${season}
+    `;
+
+    if (!skill) return;
+
+    return skill.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch per season four player skill.");
+  }
+}
