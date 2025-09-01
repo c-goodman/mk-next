@@ -13,17 +13,11 @@ import {
 
 const parseCSV = async <T extends object>(filePath: string): Promise<T[]> => {
   const csvFile = fs.readFileSync(path.resolve(filePath), "utf8");
-
-  return new Promise<T[]>((resolve, reject) => {
+  return new Promise<T[]>((resolve) => {
     Papa.parse<T>(csvFile, {
       header: true,
-      skipEmptyLines: true,
       complete: (results) => {
         resolve(results.data);
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      error: (error: any) => {
-        reject(error);
       },
     });
   });
@@ -49,6 +43,8 @@ async function seed_mk_form_data({
   if_exists,
   source,
 }: TCSVSeedTableProps) {
+  await client.sql`BEGIN`;
+
   if (if_exists === "replace") {
     await client.sql`
     DROP TABLE IF EXISTS mk_form_data;
@@ -85,12 +81,64 @@ async function seed_mk_form_data({
 
   const seedData = await parseCSV<TGamesTableEntry>(source);
 
-  await client.sql`BEGIN`;
   try {
-    // Insert into database
-    const promises = seedData.map((record) => {
-      return client.sql`
-        INSERT INTO mk_form_data (
+    // // Insert into database
+    // const promises = seedData.map((record) => {
+    //   return client.sql`
+    //     INSERT INTO mk_form_data (
+    //     TIMESTAMP,
+    //     NEW_SESSION,
+    //     SUID,
+    //     MAP,
+    //     PLAYERS,
+    //     PLAYERS_1ST,
+    //     PLAYERS_2ND,
+    //     PLAYERS_3RD,
+    //     PLAYERS_4TH,
+    //     CHARACTERS_1ST,
+    //     CHARACTERS_2ND,
+    //     CHARACTERS_3RD,
+    //     CHARACTERS_4TH,
+    //     SEASON,
+    //     SUID_WINDOW_START,
+    //     SUID_WINDOW_END
+    //     ) VALUES (
+    //     ${
+    //       record.timestamp instanceof Date
+    //         ? record.timestamp.toISOString()
+    //         : record.timestamp
+    //     },
+    //     ${record.new_session},
+    //     ${record.suid},
+    //     ${record.map},
+    //     ${record.players},
+    //     ${record.players_1st},
+    //     ${record.players_2nd},
+    //     ${record.players_3rd},
+    //     ${record.players_4th},
+    //     ${record.characters_1st},
+    //     ${record.characters_2nd},
+    //     ${record.characters_3rd},
+    //     ${record.characters_4th},
+    //     ${record.season},
+    //     ${
+    //       record.suid_window_start instanceof Date
+    //         ? record.suid_window_start.toISOString()
+    //         : record.suid_window_start
+    //     },
+    //     ${
+    //       record.suid_window_end instanceof Date
+    //         ? record.suid_window_end.toISOString()
+    //         : record.suid_window_end
+    //     }
+    //     );
+    // `;
+    // });
+
+    // const results = await Promise.all(promises);
+
+    const insertQuery = `
+    INSERT INTO mk_form_data (
         TIMESTAMP,
         NEW_SESSION,
         SUID,
@@ -107,42 +155,32 @@ async function seed_mk_form_data({
         SEASON,
         SUID_WINDOW_START,
         SUID_WINDOW_END
-        ) VALUES (
-        ${
-          record.timestamp instanceof Date
-            ? record.timestamp.toISOString()
-            : record.timestamp
-        },
-        ${record.new_session},
-        ${record.suid},
-        ${record.map},
-        ${record.players},
-        ${record.players_1st},
-        ${record.players_2nd},
-        ${record.players_3rd},
-        ${record.players_4th},
-        ${record.characters_1st},
-        ${record.characters_2nd},
-        ${record.characters_3rd},
-        ${record.characters_4th},
-        ${record.season},
-        ${
-          record.suid_window_start instanceof Date
-            ? record.suid_window_start.toISOString()
-            : record.suid_window_start
-        },
-        ${
-          record.suid_window_end instanceof Date
-            ? record.suid_window_end.toISOString()
-            : record.suid_window_end
-        }
-        );
-    `;
-    });
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+  `;
 
-    const results = await Promise.all(promises);
+    for (const row of seedData) {
+      await client.query(insertQuery, [
+        row.timestamp,
+        row.new_session,
+        row.suid,
+        row.map,
+        row.players,
+        row.players_1st,
+        row.players_2nd,
+        row.players_3rd,
+        row.players_4th,
+        row.characters_1st,
+        row.characters_2nd,
+        row.characters_3rd,
+        row.characters_4th,
+        row.season,
+        row.suid_window_start,
+        row.suid_window_end,
+      ]);
+    }
+
     await client.sql`COMMIT`;
-    console.log(`Inserted ${results.length} rows into mk_form_data`);
+    console.log(`Inserted ${seedData.length} rows into mk_form_data`);
   } catch (error) {
     await client.sql`ROLLBACK`;
     console.error("Insert failed (mk_form_data):", error);
@@ -158,6 +196,8 @@ async function seed_elo_per_season({
   if_exists,
   source,
 }: TCSVSeedTableProps) {
+  await client.sql`BEGIN`;
+
   if (if_exists === "replace") {
     await client.sql`
     DROP TABLE IF EXISTS mk_elo_per_season;
@@ -183,7 +223,6 @@ async function seed_elo_per_season({
 
   const seedData = await parseCSV<TEloSeasonTableEntry>(source);
 
-  await client.sql`BEGIN`;
   try {
     // Insert into database
     const promises = seedData.map((record) => {
@@ -219,6 +258,8 @@ async function seed_elo_per_map({
   if_exists,
   source,
 }: TCSVSeedTableProps) {
+  await client.sql`BEGIN`;
+
   if (if_exists === "replace") {
     await client.sql`
     DROP TABLE IF EXISTS mk_elo_per_map;
@@ -238,7 +279,6 @@ async function seed_elo_per_map({
 
   const seedData = await parseCSV<TTEloMapsTableEntry>(source);
 
-  await client.sql`BEGIN`;
   try {
     // Insert into database
     const promises = seedData.map((record) => {
@@ -378,7 +418,7 @@ async function main() {
   try {
     await seed_mk_form_data({
       client: client,
-      if_exists: "replace", // Optional "replace" to re-migrate
+      if_exists: "append",
       source: "./form_data_migration/form_data_valid_new_records.csv",
     });
     // Optionally re-migrate
@@ -388,17 +428,19 @@ async function main() {
     //   source: "./form_data_migration/form_data_valid.csv",
     // });
 
-    await seed_elo_per_season({
-      client: client,
-      if_exists: "replace",
-      source: "./form_data_migration/elo_per_season.csv",
-    });
+    // // re-migrate
+    // await seed_elo_per_season({
+    //   client: client,
+    //   if_exists: "replace",
+    //   source: "./form_data_migration/elo_per_season.csv",
+    // });
 
-    await seed_elo_per_map({
-      client: client,
-      if_exists: "replace",
-      source: "./form_data_migration/elo_per_map.csv",
-    });
+    // // re-migrate
+    // await seed_elo_per_map({
+    //   client: client,
+    //   if_exists: "replace",
+    //   source: "./form_data_migration/elo_per_map.csv",
+    // });
 
     // await seed_maps({
     //   client: client,
