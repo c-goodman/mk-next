@@ -1,3 +1,6 @@
 export const ITEMS_PER_PAGE = 10;
 
 export const GAMES_PER_SEASON = 550;
+
+export const OPENSKILL_ORDINAL_MULTIPLIER = 100;
+export const OPENSKILL_ORDINAL_TO_FIXED = 2;

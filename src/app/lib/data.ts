@@ -1,7 +1,10 @@
 "use server";
 
 import { formatCurrency } from "./utils";
-import { GAMES_PER_SEASON } from "../../types/constants";
+import {
+  GAMES_PER_SEASON,
+  OPENSKILL_ORDINAL_MULTIPLIER,
+} from "../../types/constants";
 import { ITEMS_PER_PAGE } from "@/types/constants";
 import { sql } from "@vercel/postgres";
 import {
@@ -1314,7 +1317,7 @@ export async function fetchSkillPerSeasonFourPlayer(season: number) {
         ,mk_skill_seasonal_four_player.map
         ,mk_skill_seasonal_four_player.mu
         ,mk_skill_seasonal_four_player.sigma
-        ,mk_skill_seasonal_four_player.ordinal
+        ,mk_skill_seasonal_four_player.ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
       FROM mk_skill_seasonal_four_player
         WHERE mk_skill_seasonal_four_player.season = ${season}
     `;
