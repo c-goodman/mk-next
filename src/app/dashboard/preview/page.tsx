@@ -1,34 +1,71 @@
-import { fetchEloPerSeason } from "@/app/lib/data";
-import { Suspense } from "react";
+"use client";
 
-export default async function Page() {
-  const elo = await fetchEloPerSeason(19);
+import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import SkillLineChart from "@/components/ui/charts/SeasonalSkillChart";
+import {
+  useFetchSkillSeasonFourPlayer,
+  useFetchUniqueSeasonsIds,
+} from "@/app/lib/hooks/fetch-hooks-client";
 
-  // const [elo, setElo] = useState<TEloSeasonTable[]>();
+export default function SeasonalSkillChartPage() {
+  const seasons = useFetchUniqueSeasonsIds(); // number[] | undefined
+  const [selectedSeason, setSelectedSeason] = useState<number | undefined>(
+    undefined
+  );
 
-  // useEffect(() => {
-  //   async function setEloInitial() {
-  //     const eloInitial = await fetchEloPerSeason(19);
+  // When selectedSeason changes, fetch the season data
+  // If no season selected, pass undefined to hook to avoid fetching
+  const seasonData = useFetchSkillSeasonFourPlayer(selectedSeason ?? 0);
 
-  //     if (eloInitial) {
-  //       setElo(eloInitial);
-  //     }
-  //   }
-
-  //   setEloInitial();
-  // }, []);
+  // On initial load, set selectedSeason to first season when seasons are fetched
+  if (selectedSeason === undefined && seasons && seasons.length > 0) {
+    setSelectedSeason(seasons[0]);
+  }
 
   return (
-    <>
-      <h1>Preview Components Under Development</h1>
-      <br />
-      <Suspense fallback={<div>Loading...</div>}>
-        {elo?.map((row) => (
-          <div key={row.id}>
-            {row.player_id} — {row.rating}
-          </div>
-        ))}
-      </Suspense>
-    </>
+    <div className="w-full max-w-5xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Skill Chart by Season</h1>
+
+      {seasons ? (
+        <div className="mb-4">
+          <Select
+            value={selectedSeason?.toString() ?? ""}
+            onValueChange={(value) => setSelectedSeason(Number(value))}
+          >
+            <SelectTrigger className="w-[200px] bg-white">
+              <SelectValue placeholder="Select Season" />
+            </SelectTrigger>
+            <SelectContent>
+              {seasons.map((season) => (
+                <SelectItem key={season} value={season.toString()}>
+                  Season {season}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : (
+        <p>Loading seasons...</p>
+      )}
+
+      <div className="h-[800px] bg-white p-4 rounded-xl shadow">
+        {!seasonData ? (
+          <p className="text-gray-800">Loading chart...</p>
+        ) : seasonData.length > 0 ? (
+          <SkillLineChart data={seasonData} />
+        ) : (
+          <p className="text-gray-800">
+            No data available for Season {selectedSeason}
+          </p>
+        )}
+      </div>
+    </div>
   );
 }
