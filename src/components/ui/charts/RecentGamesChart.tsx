@@ -1,3 +1,5 @@
+"use client";
+
 import { TRecentGamesMetricsChart } from "@/app/lib/definitions";
 import { useEffect, useRef } from "react";
 import {
