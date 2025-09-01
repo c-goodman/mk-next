@@ -416,31 +416,31 @@ async function main() {
   const client = await db.connect();
 
   try {
-    await seed_mk_form_data({
-      client: client,
-      if_exists: "append",
-      source: "./form_data_migration/form_data_valid_new_records.csv",
-    });
-    // Optionally re-migrate
     // await seed_mk_form_data({
     //   client: client,
-    //   if_exists: "replace",
-    //   source: "./form_data_migration/form_data_valid.csv",
+    //   if_exists: "append",
+    //   source: "./form_data_migration/form_data_valid_new_records.csv",
     // });
+    // Optionally re-migrate
+    await seed_mk_form_data({
+      client: client,
+      if_exists: "replace",
+      source: "./form_data_migration/form_data_valid.csv",
+    });
 
-    // // re-migrate
-    // await seed_elo_per_season({
-    //   client: client,
-    //   if_exists: "replace",
-    //   source: "./form_data_migration/elo_per_season.csv",
-    // });
+    // re-migrate
+    await seed_elo_per_season({
+      client: client,
+      if_exists: "replace",
+      source: "./form_data_migration/elo_per_season.csv",
+    });
 
-    // // re-migrate
-    // await seed_elo_per_map({
-    //   client: client,
-    //   if_exists: "replace",
-    //   source: "./form_data_migration/elo_per_map.csv",
-    // });
+    // re-migrate
+    await seed_elo_per_map({
+      client: client,
+      if_exists: "replace",
+      source: "./form_data_migration/elo_per_map.csv",
+    });
 
     // await seed_maps({
     //   client: client,
