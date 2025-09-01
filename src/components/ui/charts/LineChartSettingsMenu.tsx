@@ -76,12 +76,8 @@ export function LineChartSettingsMenu({
           className="hover:bg-red-100 p-1 rounded"
         >
           <TagIcon
-            title={`Data Labels ${
-              tooltipRoundingEnabled ? "Enabled" : "Disabled"
-            }`}
-            className={`h-5 w-5 ${
-              !tooltipRoundingEnabled ? "text-gray-400" : ""
-            }`}
+            title={`Data Labels ${dataLabelsEnabled ? "Enabled" : "Disabled"}`}
+            className={`h-5 w-5 ${!dataLabelsEnabled ? "text-gray-400" : ""}`}
           />
         </button>
       )}
