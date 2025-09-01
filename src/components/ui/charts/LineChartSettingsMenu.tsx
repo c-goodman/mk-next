@@ -11,17 +11,17 @@ import {
 interface LineChartSettingsMenuProps {
   onResetZoom: () => void;
   onToggleLasso: () => void;
-  onTogglePanning: () => void;
-  onToggleScrollZoom: () => void;
-  onToggleColorBlind: () => void;
-  onToggleRounding: () => void;
-  onDownload: () => void;
+  onTogglePanning?: () => void;
+  onToggleScrollZoom?: () => void;
+  onToggleColorBlind?: () => void;
+  onToggleRounding?: () => void;
+  onDownload?: () => void;
   onToggleDataLabels?: () => void;
   lassoEnabled: boolean;
-  panningEnabled: boolean;
-  scrollZoomEnabled: boolean;
-  colorBlindEnabled: boolean;
-  tooltipRoundingEnabled: boolean;
+  panningEnabled?: boolean;
+  scrollZoomEnabled?: boolean;
+  colorBlindEnabled?: boolean;
+  tooltipRoundingEnabled?: boolean;
   dataLabelsEnabled?: boolean;
 }
 
