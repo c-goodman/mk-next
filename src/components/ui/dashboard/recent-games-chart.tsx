@@ -18,15 +18,7 @@ import {
   SelectValue,
 } from "../select";
 
-// This component is representational only.
-// For data visualization UI, check out:
-// https://www.tremor.so/
-// https://www.chartjs.org/
-// https://airbnb.io/visx/
-
 export default function RecentGamesChart() {
-  // Make component async, remove the props
-
   type TSelectMetrics = Omit<
     TRecentGamesMetricsChart,
     "month" | "most_recent_day"
