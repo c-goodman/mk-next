@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -32,44 +32,45 @@ export default function SeasonalSkillChartPage() {
   return (
     <div className="w-full mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Skill Chart by Season</h1>
-
-      {seasons ? (
-        <div className="mb-4">
-          <Select
-            value={selectedSeason?.toString() ?? ""}
-            onValueChange={(value) => setSelectedSeason(Number(value))}
-          >
-            <SelectTrigger className="w-[200px] bg-white">
-              <SelectValue placeholder="Select Season" />
-            </SelectTrigger>
-            <SelectContent>
-              {seasons.map((season) => (
-                <SelectItem key={season} value={season.toString()}>
-                  Season {season}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : (
-        <p>Loading seasons...</p>
-      )}
-
-      <div className="h-[700px] bg-white p-4 rounded-xl shadow">
-        {!seasonData ? (
-          <p className="text-gray-800">Loading chart...</p>
-        ) : seasonData.length > 0 ? (
-          <SkillLineChart
-            data={seasonData}
-            downloadFileName="OSRChart.html"
-            downloadTitle={`Openskill Rating: Season ${selectedSeason}`}
-          />
+      <Suspense>
+        {seasons ? (
+          <div className="mb-4">
+            <Select
+              value={selectedSeason?.toString() ?? ""}
+              onValueChange={(value) => setSelectedSeason(Number(value))}
+            >
+              <SelectTrigger className="w-[200px] bg-white">
+                <SelectValue placeholder="Select Season" />
+              </SelectTrigger>
+              <SelectContent>
+                {seasons.map((season) => (
+                  <SelectItem key={season} value={season.toString()}>
+                    Season {season}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         ) : (
-          <p className="text-gray-800">
-            No data available for Season {selectedSeason}
-          </p>
+          <p>Loading seasons...</p>
         )}
-      </div>
+
+        <div className="h-[700px] bg-white p-4 rounded-xl shadow">
+          {!seasonData ? (
+            <p className="text-gray-800">Loading chart...</p>
+          ) : seasonData.length > 0 ? (
+            <SkillLineChart
+              data={seasonData}
+              downloadFileName="OSRChart.html"
+              downloadTitle={`Openskill Rating: Season ${selectedSeason}`}
+            />
+          ) : (
+            <p className="text-gray-800">
+              No data available for Season {selectedSeason}
+            </p>
+          )}
+        </div>
+      </Suspense>
     </div>
   );
 }
