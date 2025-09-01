@@ -1,6 +1,12 @@
 "use client";
 
+import Cog8ToothIcon from "@heroicons/react/24/outline/Cog8ToothIcon";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { downloadDateLineChart } from "../utils/downloadDateLineChart";
+import { LineChartSettingsMenu } from "./LineChartSettingsMenu";
+import { OPENSKILL_ORDINAL_TO_FIXED } from "@/types/constants";
 import { useEffect, useRef, useState } from "react";
+import "chartjs-adapter-date-fns";
 import {
   Chart,
   LineElement,
@@ -13,8 +19,6 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
-import zoomPlugin from "chartjs-plugin-zoom";
-import "chartjs-adapter-date-fns";
 import type { TSkillTable } from "@/app/lib/definitions";
 
 Chart.register(
@@ -31,18 +35,24 @@ Chart.register(
 
 interface Props {
   data: TSkillTable[];
+  downloadTitle: string;
+  downloadFileName: string;
 }
 
-function SkillLineChart({ data }: Props) {
+function SkillLineChart({ data, downloadTitle, downloadFileName }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<Chart<"line", { x: number; y: number }[]> | null>(
     null
   );
 
   const [showSettings, setShowSettings] = useState(false);
+  const [panningEnabled, setPanningEnabled] = useState(false);
   const [lassoEnabled, setLassoEnabled] = useState(true);
+  const [scrollZoomEnabled, setScrollZoomEnabled] = useState(false);
+  const [colorBlindEnabled, setColorBlindEnabled] = useState(false);
+  const [tooltipRoundingEnabled, setTooltipRoundingEnabled] = useState(true);
 
-  // --- Helper: Group by player
+  // Group by player
   const groupByPlayer = (data: TSkillTable[]) => {
     const grouped: Record<string, TSkillTable[]> = {};
     for (const entry of data) {
@@ -52,14 +62,56 @@ function SkillLineChart({ data }: Props) {
     return grouped;
   };
 
-  // --- Helper: Reset Zoom
+  // Simple uncontrolled button to show or hide controls
+  const toggleControls = () => setShowSettings((prev) => !prev);
+  const toggleColorBlindEnabled = () => setColorBlindEnabled((prev) => !prev);
+  const toggleTooltipRoundingEnabled = () =>
+    setTooltipRoundingEnabled((prev) => !prev);
+
   const handleResetZoom = () => {
-    chartRef.current?.resetZoom();
+    if (chartRef.current) {
+      chartRef.current.resetZoom(); // Chart.js plugin method
+    }
   };
 
-  // --- Helper: Toggle Lasso
-  const toggleLasso = () => {
-    setLassoEnabled((prev) => !prev);
+  const handleToggleLasso = () => {
+    if (chartRef.current) {
+      const chart = chartRef.current;
+      const zoomOptions = chart.options.plugins?.zoom?.zoom;
+      if (zoomOptions?.drag) {
+        zoomOptions.drag.enabled = !zoomOptions.drag.enabled;
+        setLassoEnabled(zoomOptions.drag.enabled);
+        chart.update();
+      }
+    }
+  };
+
+  const handleTogglePanning = () => {
+    if (chartRef.current) {
+      const chart = chartRef.current;
+      const zoomOptions = chart.options.plugins?.zoom;
+      if (zoomOptions?.pan) {
+        zoomOptions.pan.enabled = !zoomOptions.pan.enabled;
+        setPanningEnabled(zoomOptions.pan.enabled);
+        chart.update();
+      }
+    }
+  };
+
+  const handleToggleWheel = () => {
+    if (chartRef.current) {
+      const chart = chartRef.current;
+      const zoomOptions = chart.options.plugins?.zoom?.zoom;
+      if (zoomOptions?.wheel) {
+        zoomOptions.wheel.enabled = !zoomOptions.wheel.enabled;
+        setScrollZoomEnabled(zoomOptions.wheel.enabled);
+        chart.update();
+      }
+    }
+  };
+
+  const handleDownloadLineChart = () => {
+    downloadDateLineChart(chartRef.current, downloadTitle, downloadFileName);
   };
 
   useEffect(() => {
@@ -78,10 +130,29 @@ function SkillLineChart({ data }: Props) {
           y: d.ordinal,
           ...d,
         })),
-        borderColor: getColor(index),
-        backgroundColor: getColor(index, 0.3),
+        borderColor: getColor({
+          index: index,
+          alpha: 1,
+          colorBlindEnabled: colorBlindEnabled,
+        }),
+        backgroundColor: getColor({
+          index: index,
+          alpha: 0.3,
+          colorBlindEnabled: colorBlindEnabled,
+        }),
         pointRadius: 3,
         tension: 0.1,
+        // datalabels: {
+        //   labels: {
+        //     value: {
+        //       color: getColor({
+        //         index: index,
+        //         alpha: 1,
+        //         colorBlindEnabled: colorBlindEnabled,
+        //       }),
+        //     },
+        //   },
+        // },
       };
     });
 
@@ -99,10 +170,10 @@ function SkillLineChart({ data }: Props) {
           x: {
             type: "time",
             time: { unit: "day" },
-            title: { display: true, text: "Timestamp" },
+            title: { display: true, text: "Date" },
           },
           y: {
-            title: { display: true, text: "Ordinal" },
+            title: { display: true, text: "Openskill Rating (OSR)" },
           },
         },
         plugins: {
@@ -110,14 +181,20 @@ function SkillLineChart({ data }: Props) {
             callbacks: {
               label: (tooltipItem) => {
                 const d = tooltipItem.raw as TSkillTable;
+
+                // Optionally round the skill rating
+                const ranking = tooltipRoundingEnabled
+                  ? d.ordinal.toFixed(OPENSKILL_ORDINAL_TO_FIXED)
+                  : d.ordinal;
+
                 return [
                   `Player: ${d.player}`,
+                  `OSR: ${ranking}`,
                   `Game ID: ${d.game_id}`,
                   `SUID: ${d.suid}`,
                   `Place: ${d.place}`,
                   `Character: ${d.character}`,
                   `Map: ${d.map}`,
-                  `Ordinal: ${d.ordinal}`,
                 ];
               },
             },
@@ -145,45 +222,35 @@ function SkillLineChart({ data }: Props) {
     chartRef.current = chart;
 
     return () => chart.destroy();
-  }, [data, lassoEnabled]);
+  }, [data, colorBlindEnabled, tooltipRoundingEnabled]);
 
   return (
     <div className="relative w-full h-full">
       {/* Settings Button */}
       <button
-        className="absolute top-2 right-2 z-10 bg-white rounded-full p-2 shadow hover:bg-gray-100"
-        onClick={() => setShowSettings((s) => !s)}
-        aria-label="Settings"
+        type="button"
+        onClick={toggleControls}
+        className="absolute top-0 right-0 bg-white hover:bg-red-100 p-1 rounded shadow z-20"
       >
-        ⚙️
+        <Cog8ToothIcon title="Toggle Controls" className="h-5 w-5" />
       </button>
 
       {/* Settings Menu */}
       {showSettings && (
-        <div className="absolute top-12 right-2 z-20 w-64 bg-white border rounded shadow p-4 space-y-4">
-          <div>
-            <label className="flex items-center justify-between">
-              <span>🔄 Reset Zoom</span>
-              <button
-                className="px-2 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
-                onClick={handleResetZoom}
-              >
-                Reset
-              </button>
-            </label>
-          </div>
-          <div>
-            <label className="flex items-center justify-between">
-              <span>🔍 Lasso Zoom</span>
-              <input
-                type="checkbox"
-                checked={lassoEnabled}
-                onChange={toggleLasso}
-                className="w-4 h-4"
-              />
-            </label>
-          </div>
-        </div>
+        <LineChartSettingsMenu
+          onResetZoom={handleResetZoom}
+          onToggleLasso={handleToggleLasso}
+          onTogglePanning={handleTogglePanning}
+          onToggleScrollZoom={handleToggleWheel}
+          onToggleColorBlind={toggleColorBlindEnabled}
+          onDownload={handleDownloadLineChart}
+          onToggleRounding={toggleTooltipRoundingEnabled}
+          lassoEnabled={lassoEnabled}
+          panningEnabled={panningEnabled}
+          scrollZoomEnabled={scrollZoomEnabled}
+          colorBlindEnabled={colorBlindEnabled}
+          tooltipRoundingEnabled={tooltipRoundingEnabled}
+        />
       )}
 
       {/* Chart Canvas */}
@@ -195,7 +262,32 @@ function SkillLineChart({ data }: Props) {
 export default SkillLineChart;
 
 // 🎨 Helper: getColor(index)
-function getColor(index: number, alpha = 1): string {
+
+interface GetColorProps {
+  index: number;
+  alpha: number;
+  colorBlindEnabled: boolean;
+}
+
+function getColor({
+  index,
+  alpha = 1,
+  colorBlindEnabled,
+}: GetColorProps): string {
+  if (colorBlindEnabled) {
+    // <https://davidmathlogic.com/colorblind/#%23332288-%23117733-%2344AA99-%2388CCEE-%23DDCC77-%23CC6677-%23AA4499-%23882255>
+    const colors = [
+      `rgba(51, 34, 136, ${alpha})`,
+      `rgba(17, 119, 51, ${alpha})`,
+      `rgba(68, 170, 153, ${alpha})`,
+      `rgba(136, 204, 238, ${alpha})`,
+      `rgba(221, 204, 119, ${alpha})`,
+      `rgba(204, 102, 119, ${alpha})`,
+      `rgba(170, 68, 153, ${alpha})`,
+      `rgba(136, 34, 85, ${alpha})`,
+    ];
+    return colors[index % colors.length];
+  }
   const colors = [
     `rgba(255, 99, 132, ${alpha})`,
     `rgba(54, 162, 235, ${alpha})`,
