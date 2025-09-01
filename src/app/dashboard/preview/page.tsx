@@ -30,7 +30,7 @@ export default function SeasonalSkillChartPage() {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4">
+    <div className="w-full mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Skill Chart by Season</h1>
 
       {seasons ? (
@@ -55,11 +55,15 @@ export default function SeasonalSkillChartPage() {
         <p>Loading seasons...</p>
       )}
 
-      <div className="h-[800px] bg-white p-4 rounded-xl shadow">
+      <div className="h-[700px] bg-white p-4 rounded-xl shadow">
         {!seasonData ? (
           <p className="text-gray-800">Loading chart...</p>
         ) : seasonData.length > 0 ? (
-          <SkillLineChart data={seasonData} />
+          <SkillLineChart
+            data={seasonData}
+            downloadFileName="OSRChart.html"
+            downloadTitle={`Openskill Rating: Season ${selectedSeason}`}
+          />
         ) : (
           <p className="text-gray-800">
             No data available for Season {selectedSeason}
