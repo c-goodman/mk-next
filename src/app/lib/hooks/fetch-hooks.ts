@@ -1,15 +1,23 @@
 "use server";
 
+import { useEffect, useState } from "react";
 // import { cache } from "react";
 import {
   fetchCharacters,
   fetchEloPerSeason,
   fetchMaps,
+  fetchSkillPerSeasonFourPlayer,
+  fetchUniqueSeasonsIds,
   fetchUserByEmail,
   fetchUserByName,
   fetchUserNames,
 } from "../data";
-import { TCharactersTable, TEloSeasonTable, TMapsTable } from "../definitions";
+import {
+  TCharactersTable,
+  TEloSeasonTable,
+  TMapsTable,
+  TSkillTable,
+} from "../definitions";
 
 export async function useFetchUserNames(): Promise<string[]> {
   const [userNames] = await Promise.all([fetchUserNames()]);
@@ -50,10 +58,3 @@ export async function useFetchEloSeason(
 
   return eloSeason;
 }
-
-// export const useFetchCharacters = cache(async () => {
-//   const characters = await fetchCharacters();
-
-//   if (!characters) notFound();
-//   return characters;
-// });
