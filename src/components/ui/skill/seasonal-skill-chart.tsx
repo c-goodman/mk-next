@@ -15,16 +15,33 @@ import {
   fetchUniqueSeasonsIds,
 } from "@/app/lib/data";
 
-export default function SeasonalSkillChart() {
-  const [seasons, setSeasons] = useState<number[] | null>(null);
+interface SeasonalSkillChartProps {
+  initialSeasons?: number[] | null;
+}
+
+export default function SeasonalSkillChart({
+  initialSeasons,
+}: SeasonalSkillChartProps) {
+  const [seasons, setSeasons] = useState<number[] | null>(
+    initialSeasons || null
+  );
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
   const [seasonData, setSeasonData] = useState<TSkillTable[] | null>(null);
-  const [seasonsLoading, setSeasonsLoading] = useState(true);
+  const [seasonsLoading, setSeasonsLoading] = useState(!initialSeasons);
   const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load seasons on mount
+  // Load seasons on mount (only if not provided as props)
   useEffect(() => {
+    if (initialSeasons) {
+      setSeasons(initialSeasons);
+      setSeasonsLoading(false);
+      if (initialSeasons.length > 0) {
+        setSelectedSeason(initialSeasons[0]);
+      }
+      return;
+    }
+
     const loadSeasons = async () => {
       setSeasonsLoading(true);
       setError(null);
@@ -33,7 +50,6 @@ export default function SeasonalSkillChart() {
         const seasonIds = await fetchUniqueSeasonsIds();
         setSeasons(seasonIds);
 
-        // Auto-select the first season if available
         if (seasonIds && seasonIds.length > 0) {
           setSelectedSeason(seasonIds[0]);
         }
@@ -46,7 +62,7 @@ export default function SeasonalSkillChart() {
     };
 
     loadSeasons();
-  }, []);
+  }, [initialSeasons]);
 
   // Load season data when selectedSeason changes
   useEffect(() => {
