@@ -4,11 +4,18 @@ import {
   fetchCharacters,
   fetchEloPerSeason,
   fetchMaps,
+  fetchSkillPerSeasonFourPlayer,
+  fetchUniqueSeasonsIds,
   fetchUserByEmail,
   fetchUserByName,
   fetchUserNames,
 } from "../data";
-import { TCharactersTable, TEloSeasonTable, TMapsTable } from "../definitions";
+import {
+  TCharactersTable,
+  TEloSeasonTable,
+  TMapsTable,
+  TSkillTable,
+} from "../definitions";
 
 export async function useFetchUserNames(): Promise<string[]> {
   const [userNames] = await Promise.all([fetchUserNames()]);
@@ -48,4 +55,20 @@ export async function useFetchEloSeason(
   if (!eloSeason) return;
 
   return eloSeason;
+}
+
+export async function useFetchSkillSeasonFourPlayer(
+  season: number
+): Promise<TSkillTable[] | undefined> {
+  const [seasons] = await Promise.all([fetchSkillPerSeasonFourPlayer(season)]);
+
+  return seasons;
+}
+
+export async function useFetchUniqueSeasonsIds(): Promise<
+  number[] | undefined
+> {
+  const [seasons] = await Promise.all([fetchUniqueSeasonsIds()]);
+
+  return seasons;
 }
