@@ -120,9 +120,11 @@ function SkillLineChart({ data, downloadTitle, downloadFileName }: Props) {
 
     const grouped = groupByPlayer(data);
     const datasets = Object.entries(grouped).map(([player, entries], index) => {
-      const sorted = entries.sort(
-        (a, b) => +new Date(a.timestamp) - +new Date(b.timestamp)
-      );
+      // No timestamp sort, sorting is based on DB Game Identity
+      // const sorted = entries.sort(
+      //   (a, b) => +new Date(a.timestamp) - +new Date(b.timestamp)
+      // );\
+      const sorted = entries;
       return {
         label: player,
         data: sorted.map((d) => ({
