@@ -78,6 +78,32 @@ export default function SeasonalSkillChart() {
     setSelectedSeason(Number(value));
   };
 
+  const handleRetry = () => {
+    setError(null);
+    setSeasonsLoading(true);
+    setSeasons(null);
+    setSelectedSeason(null);
+    setSeasonData(null);
+
+    const loadSeasons = async () => {
+      try {
+        const seasonIds = await fetchUniqueSeasonsIds();
+        setSeasons(seasonIds);
+
+        if (seasonIds && seasonIds.length > 0) {
+          setSelectedSeason(seasonIds[0]);
+        }
+      } catch (err) {
+        console.error("Failed to load seasons:", err);
+        setError("Failed to load seasons");
+      } finally {
+        setSeasonsLoading(false);
+      }
+    };
+
+    loadSeasons();
+  };
+
   // Show error state
   if (error) {
     return (
@@ -86,7 +112,7 @@ export default function SeasonalSkillChart() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600">{error}</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={handleRetry}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Retry
