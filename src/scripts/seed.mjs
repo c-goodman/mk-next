@@ -321,34 +321,34 @@ async function seed_elo_per_map(client, if_exists = "append", source) {
 async function main() {
   const client = await db.connect();
   try {
-    // await seed_mk_form_data(
-    //   client,
-    //   "replace",
-    //   "./form_data_migration/form_data_valid.csv"
-    // );
     await seed_mk_form_data(
       client,
-      "append",
-      "./form_data_migration/form_data_valid_new_records.csv"
-    );
-
-    await seed_elo_per_season(
-      client,
       "replace",
-      "./form_data_migration/elo_per_season.csv"
+      "./form_data_migration/form_data_valid.csv"
     );
-    // await seed_elo_per_season(client, "append");
-
-    await seed_elo_per_map(
-      client,
-      "replace",
-      "./form_data_migration/elo_per_map.csv"
-    );
-    // await seed_elo_per_map(
+    // await seed_mk_form_data(
     //   client,
     //   "append",
+    //   "./form_data_migration/form_data_valid_new_records.csv"
+    // );
+
+    // await seed_elo_per_season(
+    //   client,
+    //   "replace",
+    //   "./form_data_migration/elo_per_season.csv"
+    // );
+    // // await seed_elo_per_season(client, "append");
+
+    // await seed_elo_per_map(
+    //   client,
+    //   "replace",
     //   "./form_data_migration/elo_per_map.csv"
     // );
+    // // await seed_elo_per_map(
+    // //   client,
+    // //   "append",
+    // //   "./form_data_migration/elo_per_map.csv"
+    // // );
 
     // await seed_maps(client);
     // await seed_characters(client);

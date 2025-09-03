@@ -771,7 +771,7 @@ async function main() {
     // });
     await seed_skill_all_time_four_player({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
     });
     // Per Season
     // -----------------------------
@@ -782,7 +782,7 @@ async function main() {
     // });
     await seed_skill_seasonal_four_player({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
     });
     // ---------------------------------------------------------
     // 3 Player
@@ -796,7 +796,7 @@ async function main() {
     // });
     await seed_skill_all_time_three_player({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
     });
     // Per Season
     // -----------------------------
@@ -807,7 +807,7 @@ async function main() {
     // });
     await seed_skill_seasonal_three_player({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
     });
     // ---------------------------------------------------------
     // 2 Player
@@ -821,7 +821,7 @@ async function main() {
     // });
     await seed_skill_all_time_two_player({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
     });
     // Per Season
     // -----------------------------
@@ -832,7 +832,7 @@ async function main() {
     // });
     await seed_skill_seasonal_two_player({
       client: client,
-      if_exists: "append",
+      if_exists: "replace",
     });
   } finally {
     await client.release();
