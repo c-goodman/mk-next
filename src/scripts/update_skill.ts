@@ -1,5 +1,4 @@
 import { db } from "@vercel/postgres";
-import { fetchLatestSkillPerSeasonFourPlayer } from "@/app/lib/data";
 import { ordinal, rate, Rating, rating } from "openskill";
 import "dotenv/config";
 import {
@@ -7,6 +6,8 @@ import {
   TLatestSkillTable,
   TSkillTableEntry,
 } from "@/app/lib/definitions";
+
+import { fetchLatestSkillPerSeasonFourPlayer } from "@/app/lib/data";
 
 // Convert latest ratings to Record<playerName, latestRating> type
 export function handleBuildSkillRating(
