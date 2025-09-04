@@ -1332,6 +1332,11 @@ export async function fetchSkillPerSeasonFourPlayer(season: number) {
   }
 }
 
+// --------------------------------------------------------
+// Latest Openskill
+// --------------------------------------------------------
+// Latest Openskill Per Season
+// ----------------------------
 export async function fetchLatestSkillPerSeasonFourPlayer() {
   try {
     const result = await sql<TLatestSkillTable>`
@@ -1352,5 +1357,122 @@ export async function fetchLatestSkillPerSeasonFourPlayer() {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch latest per season four player skill.");
+  }
+}
+
+export async function fetchLatestSkillPerSeasonThreePlayer() {
+  try {
+    const result = await sql<TLatestSkillTable>`
+    SELECT DISTINCT ON (player)
+      player
+      ,mu
+      ,sigma
+      ,season
+      ,game_id
+      ,ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
+    FROM public.mk_skill_seasonal_three_player
+    ORDER BY player, game_id DESC;
+  `;
+
+    if (!result) return;
+
+    return result.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch latest per season three player skill.");
+  }
+}
+
+export async function fetchLatestSkillPerSeasonTwoPlayer() {
+  try {
+    const result = await sql<TLatestSkillTable>`
+    SELECT DISTINCT ON (player)
+      player
+      ,mu
+      ,sigma
+      ,season
+      ,game_id
+      ,ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
+    FROM public.mk_skill_seasonal_two_player
+    ORDER BY player, game_id DESC;
+  `;
+
+    if (!result) return;
+
+    return result.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch latest per season two player skill.");
+  }
+}
+
+// Latest Openskill All Time
+// ----------------------------
+export async function fetchLatestSkillAllTimeFourPlayer() {
+  try {
+    const result = await sql<TLatestSkillTable>`
+    SELECT DISTINCT ON (player)
+      player
+      ,mu
+      ,sigma
+      ,season
+      ,game_id
+      ,ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
+    FROM public.mk_skill_all_time_four_player
+    ORDER BY player, game_id DESC;
+  `;
+
+    if (!result) return;
+
+    return result.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch all time four player skill.");
+  }
+}
+
+export async function fetchLatestSkillAllTimeThreePlayer() {
+  try {
+    const result = await sql<TLatestSkillTable>`
+    SELECT DISTINCT ON (player)
+      player
+      ,mu
+      ,sigma
+      ,season
+      ,game_id
+      ,ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
+    FROM public.mk_skill_all_time_three_player
+    ORDER BY player, game_id DESC;
+  `;
+
+    if (!result) return;
+
+    return result.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch all time three player skill.");
+  }
+}
+
+export async function fetchLatestSkillAllTimeTwoPlayer() {
+  try {
+    const result = await sql<TLatestSkillTable>`
+    SELECT DISTINCT ON (player)
+      player
+      ,mu
+      ,sigma
+      ,season
+      ,game_id
+      ,ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
+    FROM public.mk_skill_all_time_two_player
+    ORDER BY player, game_id DESC;
+  `;
+
+    if (!result) return;
+
+    return result.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch all time two player skill.");
   }
 }
