@@ -24,6 +24,7 @@ import {
   TUsersTable,
   TEloSeasonTable,
   TSkillTable,
+  TLatestSkillTable,
 } from "./definitions";
 
 export async function fetchRevenue() {
@@ -1328,5 +1329,28 @@ export async function fetchSkillPerSeasonFourPlayer(season: number) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch per season four player skill.");
+  }
+}
+
+export async function fetchLatestSkillPerSeasonFourPlayer() {
+  try {
+    const result = await sql<TLatestSkillTable>`
+    SELECT DISTINCT ON (player)
+      player
+      ,mu
+      ,sigma
+      ,season
+      ,game_id
+      ,ordinal * ${OPENSKILL_ORDINAL_MULTIPLIER} as ordinal
+    FROM public.mk_skill_seasonal_four_player
+    ORDER BY player, game_id DESC;
+  `;
+
+    if (!result) return;
+
+    return result.rows;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch latest per season four player skill.");
   }
 }
