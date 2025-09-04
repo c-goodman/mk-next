@@ -171,6 +171,11 @@ export type TSkillTable = {
 // Define the shape of skill history entries (excluding the DB auto-generated ID)
 export type TSkillTableEntry = Omit<TSkillTable, "id">;
 
+export type TLatestSkillTable = Pick<
+  TSkillTable,
+  "player" | "mu" | "sigma" | "season" | "game_id" | "ordinal"
+>;
+
 // --------------------------------------------------------
 // Characters
 // --------------------------------------------------------
