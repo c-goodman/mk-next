@@ -759,81 +759,81 @@ async function seed_skill_seasonal_two_player({
 async function main() {
   const client = await db.connect();
   try {
-    // ---------------------------------------------------------
-    // 4 Player
-    // ---------------------------------------------------------
-    // All Time
-    // -----------------------------
-    // await seed_skill_all_time_four_player({
-    //   client: client,
-    //   if_exists: "replace",
-    //   game_type: "4",
-    // });
+    // // ---------------------------------------------------------
+    // // 4 Player
+    // // ---------------------------------------------------------
+    // // All Time
+    // // -----------------------------
+    // // await seed_skill_all_time_four_player({
+    // //   client: client,
+    // //   if_exists: "replace",
+    // //   game_type: "4",
+    // // });
     await seed_skill_all_time_four_player({
       client: client,
       if_exists: "replace",
     });
-    // Per Season
-    // -----------------------------
+    // // Per Season
+    // // -----------------------------
+    // // await seed_skill_seasonal_four_player({
+    // //   client: client,
+    // //   if_exists: "replace",
+    // //   game_type: "4",
+    // // });
     // await seed_skill_seasonal_four_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
-    await seed_skill_seasonal_four_player({
-      client: client,
-      if_exists: "replace",
-    });
-    // ---------------------------------------------------------
-    // 3 Player
-    // ---------------------------------------------------------
-    // All Time
-    // -----------------------------
+    // // ---------------------------------------------------------
+    // // 3 Player
+    // // ---------------------------------------------------------
+    // // All Time
+    // // -----------------------------
+    // // await seed_skill_all_time_three_player({
+    // //   client: client,
+    // //   if_exists: "replace",
+    // //   game_type: "4",
+    // // });
     // await seed_skill_all_time_three_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
-    await seed_skill_all_time_three_player({
-      client: client,
-      if_exists: "replace",
-    });
-    // Per Season
-    // -----------------------------
+    // // Per Season
+    // // -----------------------------
+    // // await seed_skill_seasonal_three_player({
+    // //   client: client,
+    // //   if_exists: "replace",
+    // //   game_type: "4",
+    // // });
     // await seed_skill_seasonal_three_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
-    await seed_skill_seasonal_three_player({
-      client: client,
-      if_exists: "replace",
-    });
-    // ---------------------------------------------------------
-    // 2 Player
-    // ---------------------------------------------------------
-    // All Time
-    // -----------------------------
+    // // ---------------------------------------------------------
+    // // 2 Player
+    // // ---------------------------------------------------------
+    // // All Time
+    // // -----------------------------
+    // // await seed_skill_all_time_two_player({
+    // //   client: client,
+    // //   if_exists: "replace",
+    // //   game_type: "4",
+    // // });
     // await seed_skill_all_time_two_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
-    await seed_skill_all_time_two_player({
-      client: client,
-      if_exists: "replace",
-    });
-    // Per Season
-    // -----------------------------
+    // // Per Season
+    // // -----------------------------
+    // // await seed_skill_seasonal_two_player({
+    // //   client: client,
+    // //   if_exists: "replace",
+    // //   game_type: "4",
+    // // });
     // await seed_skill_seasonal_two_player({
     //   client: client,
     //   if_exists: "replace",
-    //   game_type: "4",
     // });
-    await seed_skill_seasonal_two_player({
-      client: client,
-      if_exists: "replace",
-    });
   } finally {
     await client.release();
   }
