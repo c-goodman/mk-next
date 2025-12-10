@@ -1,6 +1,7 @@
 "use server";
 
 import { GAMES_PER_SEASON } from "@/types/constants";
+// @ts-ignore
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { sql } from "@vercel/postgres";
@@ -363,6 +364,7 @@ export async function createGame(
 
   try {
     // Insert data into db
+    // const result = await sql`
     await sql`
             INSERT INTO mk_form_data (
               timestamp,
@@ -400,7 +402,12 @@ export async function createGame(
               ${suid_window_start.toISOString()},
               ${suid_window_end.toISOString()}
             )
+            RETURNING id;
             `;
+
+    // TODO
+    // Return the new gameId to be used to update the corresponding Skill data
+    // const gameId = result.rows[0].id;
   } catch (error) {
     console.log("Database Error", error);
     return {
